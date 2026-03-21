@@ -295,13 +295,6 @@ export default function NutriCoachWeb() {
               <option value="Muscle Gain">Muscle Gain</option>
               <option value="Healthy Lifestyle">Healthy Lifestyle</option>
             </select>
-            <input 
-              name="apiKey" 
-              placeholder="Groq API Key (starts with gsk_)" 
-              className="auth-input"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-            />
             <button className="w-full py-4 bg-primary text-black font-bold rounded-2xl hover:bg-primary-hover transition-all mt-4">
               Start Your Journey
             </button>
@@ -585,28 +578,16 @@ export default function NutriCoachWeb() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="glass p-6 rounded-3xl space-y-4">
-                      <h4 className="font-bold flex items-center gap-2"><Settings className="w-4 h-4 text-primary" /> App Settings</h4>
-                      <div className="space-y-4">
-                        <div className="space-y-1">
-                          <label className="text-xs text-gray-500">Groq API Key (Optional if set on Render)</label>
-                          <input 
-                            type="password" 
-                            value={apiKey} 
-                            onChange={(e) => setApiKey(e.target.value)}
-                            placeholder="gsk_..."
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-primary/50"
-                          />
+                      <h4 className="font-bold flex items-center gap-2"><Settings className="w-4 h-4 text-primary" /> Profile Metrics</h4>
+                      <div className="space-y-3">
+                        <div className="flex justify-between border-b border-white/5 pb-2 text-sm">
+                          <span className="text-gray-400">Age</span><span>{user.age} Years</span>
                         </div>
-                        <div className="pt-2 border-t border-white/5 space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-400">Age</span><span>{user.age} Years</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-400">Height</span><span>{user.height} cm</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-400">Weight</span><span>{user.weight} kg</span>
-                          </div>
+                        <div className="flex justify-between border-b border-white/5 pb-2 text-sm">
+                          <span className="text-gray-400">Height</span><span>{user.height} cm</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Weight</span><span>{user.weight} kg</span>
                         </div>
                       </div>
                     </div>
