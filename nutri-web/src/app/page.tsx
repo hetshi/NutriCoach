@@ -194,12 +194,8 @@ export default function NutriCoachWeb() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.type === "application/pdf") {
-      alert("PDFs are not supported yet. Please take a SCREENSHOT or a PHOTO of your report/bill and upload that instead!");
-      return;
-    }
-
     if (isConfiguringPlan) setIsScanningInModal(true);
+    setIsLoading(true);
     const formData = new FormData();
     formData.append("file", file);
     formData.append("type", activeType);
