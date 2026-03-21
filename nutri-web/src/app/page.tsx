@@ -383,24 +383,18 @@ export default function NutriCoachWeb() {
                 exit={{ opacity: 0, y: -20 }}
                 className="max-w-4xl mx-auto space-y-8"
               >
-                {/* Feature Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Feature Grid - Strictly Meal Plans */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {[
-                    { title: "Daily Meal Plan", desc: "Get a personalized 1-day nutrition schedule", icon: Calendar, color: "text-primary", type: "daily" },
-                    { title: "Weekly Schedule", desc: "Plan your entire week with Indian recipes", icon: Clock, color: "text-accent", type: "weekly" },
-                    { title: "Specific Recipe", desc: "Get a healthy recipe for any dish", icon: Utensils, color: "text-orange-400", type: "specific" },
-                    { title: "Analyze Report", desc: "Get medical insights from your blood tests", icon: FileText, color: "text-blue-400", type: "report" },
+                    { title: "Daily Meal Plan", desc: "1-day nutrition", icon: Calendar, color: "text-primary", type: "daily" },
+                    { title: "Weekly Schedule", desc: "Entire week", icon: Clock, color: "text-accent", type: "weekly" },
+                    { title: "Specific Recipe", desc: "Healthy recipe", icon: Utensils, color: "text-orange-400", type: "specific" },
                   ].map((action, i) => (
                     <button
                       key={i}
                       onClick={() => { 
-                        if (action.type === "report") {
-                          setActiveType("report");
-                          fileInputRef.current?.click();
-                        } else {
-                          setPlanType(action.type); 
-                          setIsConfiguringPlan(true); 
-                        }
+                        setPlanType(action.type); 
+                        setIsConfiguringPlan(true); 
                       }}
                       className="glass p-8 rounded-3xl hover:bg-white/5 transition-all text-left border border-white/10 group relative overflow-hidden"
                     >
@@ -416,19 +410,8 @@ export default function NutriCoachWeb() {
                   ))}
                 </div>
 
-                {/* Big Scan Button */}
-                <button 
-                  onClick={() => { setActiveType("bill"); fileInputRef.current?.click(); }}
-                  className="w-full glass p-10 rounded-3xl border-2 border-dashed border-primary/20 hover:border-primary/50 transition-all group flex flex-col items-center justify-center space-y-4"
-                >
-                  <div className="bg-primary/20 p-6 rounded-full group-hover:scale-110 transition-transform">
-                    <ImageIcon className="text-primary w-10 h-10" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-2xl font-bold text-primary">Scan Grocery Bill</h3>
-                    <p className="text-gray-400 mt-2">Upload a bill to get instant Indian meal suggestions using these ingredients</p>
-                  </div>
-                </button>
+                {/* Empty Space for layout balance */}
+                <div className="h-20"></div>
 
                 {/* Results Modal */}
                 <AnimatePresence>
