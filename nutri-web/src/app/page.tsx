@@ -63,6 +63,7 @@ export default function NutriCoachWeb() {
   const [planType, setPlanType] = useState<string | null>(null);
   const [ingredients, setIngredients] = useState("");
   const [apiKey, setApiKey] = useState("");
+  const [isScanningInModal, setIsScanningInModal] = useState(false);
 
   // Load settings from localStorage
   useEffect(() => {
@@ -135,11 +136,7 @@ export default function NutriCoachWeb() {
 
   const generateMealPlanFromConfig = () => {
     if (!planType) return;
-    const prompt = planType === "daily" 
-      ? `Generate a 1-day meal plan. ${ingredients ? `Ingredients I have: ${ingredients}` : "Use standard healthy options."}`
-      : planType === "weekly"
-      ? `Generate a 7-day Indian meal plan. ${ingredients ? `Use these ingredients: ${ingredients}` : "Vary the dishes."}`
-      : `Suggest a specific healthy recipe. ${ingredients ? `I have: ${ingredients}` : ""}`;
+    const prompt = `I am using my Ingredient Book. Plan type: ${planType}. ${ingredients ? `Ingredients available: ${ingredients}.` : "Suggest healthy recipes."} Please provide the plan with clickable YouTube recipe links using the format [Watch Recipe](URL).`;
     
     setIsConfiguringPlan(false);
     handleSend(prompt);
@@ -383,21 +380,21 @@ export default function NutriCoachWeb() {
                 exit={{ opacity: 0, y: -20 }}
                 className="max-w-4xl mx-auto space-y-8"
               >
-                {/* Feature Grid - Strictly Meal Plans */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {[
-                    { title: "Daily Meal Plan", desc: "1-day nutrition", icon: Calendar, color: "text-primary", type: "daily" },
-                    { title: "Weekly Schedule", desc: "Entire week", icon: Clock, color: "text-accent", type: "weekly" },
-                    { title: "Specific Recipe", desc: "Healthy recipe", icon: Utensils, color: "text-orange-400", type: "specific" },
-                  ].map((action, i) => (
-                    <button
-                      key={i}
-                      onClick={() => { 
-                        setPlanType(action.type); 
-                        setIsConfiguringPlan(true); 
-                      }}
-                      className="glass p-8 rounded-3xl hover:bg-white/5 transition-all text-left border border-white/10 group relative overflow-hidden"
-                    >
+                 {/* Feature Grid - Strictly Meal Plans */}
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                   {[
+                     { title: "Daily Meal Plan", desc: "1-day nutrition", icon: Calendar, color: "text-primary", type: "daily" },
+                     { title: "Weekly Schedule", desc: "Entire week", icon: Clock, color: "text-accent", type: "weekly" },
+                     { title: "Specific Recipe", desc: "Healthy recipe", icon: Utensils, color: "text-orange-400", type: "specific" },
+                   ].map((action, i) => (
+                     <button
+                       key={i}
+                       onClick={() => { 
+                         setPlanType(action.type); 
+                         setIsConfiguringPlan(true); 
+                       }}
+                       className="glass p-8 rounded-3xl hover:bg-white/5 transition-all text-left border border-white/10 group relative pointer-events-auto"
+                     >
                       <div className="flex items-center justify-between mb-4">
                         <action.icon className={`${action.color} w-8 h-8 group-hover:scale-110 transition-transform`} />
                         <div className="p-2 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
@@ -610,6 +607,64 @@ export default function NutriCoachWeb() {
           </AnimatePresence>
         </div>
       </main>
+
+      {/* Ingredient Book Modal */}
+      <AnimatePresence>
+        {isConfiguringPlan && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-center justify-center p-6"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="max-w-md w-full glass p-8 rounded-3xl space-y-6 relative border border-white/20"
+            >
+              <div className="text-center space-y-2">
+                <div className="bg-primary/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/30">
+                  <Utensils className="text-primary w-8 h-8" />
+                </div>
+                <h3 className="text-3xl font-bold text-primary text-center w-full">Ingredient Book</h3>
+                <p className="text-gray-400 capitalize text-center w-full">{planType} Configuration</p>
+              </div>
+              
+              <div className="relative">
+                <textarea
+                  value={ingredients}
+                  onChange={e => setIngredients(e.target.value)}
+                  placeholder="List your available ingredients here..."
+                  className="w-full h-48 bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-primary/50 text-white resize-none"
+                />
+                {isScanningInModal && (
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center text-primary gap-2">
+                    <Loader2 className="animate-spin" />
+                    <span className="text-xs font-bold uppercase tracking-widest text-center">Reading Bill...</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => { setActiveType("bill"); fileInputRef.current?.click(); }}
+                  className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition"
+                >
+                  <ImageIcon className="w-4 h-4" /> Scan Bill
+                </button>
+                <button 
+                  onClick={generateMealPlanFromConfig}
+                  className="flex-1 py-4 bg-primary text-black rounded-2xl font-bold hover:bg-primary/90 transition"
+                >
+                  Generate
+                </button>
+              </div>
+              <button onClick={() => { setIsConfiguringPlan(false); setPlanType(null); }} className="w-full text-gray-500 hover:text-white transition text-sm text-center">Close</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <input type="file" id="bill-scan-input" ref={fileInputRef} onChange={handleFileUpload} hidden />
     </div>
