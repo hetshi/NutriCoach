@@ -137,7 +137,8 @@ export default function NutriCoachWeb() {
 
   const generateMealPlanFromConfig = () => {
     if (!planType) return;
-    const prompt = `I am using my Ingredient Book. Plan type: ${planType}. ${planType === "specific" ? `Specifically for ${mealTime}. ` : ""}${ingredients ? `Ingredients available: ${ingredients}.` : "Suggest healthy recipes."} Please provide the plan with clickable YouTube recipe links using the format [Watch Recipe](URL).`;
+    const healthContext = user?.health_advisor ? `IMPORTANT: User has these medical insights: ${user.health_advisor}. ACT ACCORDINGLY by avoiding restricted foods or prioritizing needed nutrients.` : "";
+    const prompt = `I am using my Ingredient Book. ${healthContext} Plan type: ${planType}. ${planType === "specific" ? `Specifically for ${mealTime}. ` : ""}${ingredients ? `Ingredients available: ${ingredients}.` : "Suggest healthy recipes."} Please provide the plan with clickable YouTube recipe links using the format [Watch Recipe](URL).`;
     
     setIsConfiguringPlan(false);
     handleSend(prompt);
@@ -221,6 +222,16 @@ export default function NutriCoachWeb() {
           }
         } else {
           setMessages(prev => [...prev, { role: "assistant", content: `Medical Analysis: ${data.content}` }]);
+          const reportItem = {
+            type: "Medical Report",
+            content: data.content,
+            timestamp: new Date().toLocaleString()
+          };
+          setUser(prev => prev ? ({ 
+            ...prev, 
+            health_advisor: data.content,
+            meal_history: [reportItem, ...(prev.meal_history || [])]
+          }) : null);
         }
       } else {
         alert("Scanner finished but no text was found. Try a closer, brighter photo of the items.");
@@ -495,7 +506,7 @@ export default function NutriCoachWeb() {
                   user.meal_history.map((h, i) => (
                     <div key={i} className="glass p-6 rounded-2xl space-y-3">
                       <div className="flex justify-between items-center text-sm">
-                        <span className="bg-primary/20 text-primary px-3 py-1 rounded-full font-bold">{h.type}</span>
+                        <span className={`px-3 py-1 rounded-full font-bold ${h.type === "Medical Report" ? "bg-accent/20 text-accent" : "bg-primary/20 text-primary"}`}>{h.type}</span>
                         <span className="text-gray-500">{h.timestamp}</span>
                       </div>
                       <div className="text-gray-300 text-sm line-clamp-3">{h.content}</div>
