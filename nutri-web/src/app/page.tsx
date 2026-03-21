@@ -652,7 +652,7 @@ export default function NutriCoachWeb() {
                   value={ingredients}
                   onChange={e => setIngredients(e.target.value)}
                   placeholder="List your available ingredients here..."
-                  className="w-full h-48 bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-primary/50 text-white resize-none"
+                  className="w-full h-32 bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-primary/50 text-white resize-none text-sm"
                 />
                 {isScanningInModal && (
                   <div className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center text-primary gap-2">
