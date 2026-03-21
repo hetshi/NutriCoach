@@ -206,17 +206,20 @@ export default function NutriCoachWeb() {
       if (data.content) {
         if (activeType === "bill") {
           if (isConfiguringPlan) {
-            setIngredients(prev => prev ? `${prev}, ${data.content}` : data.content);
+            setIngredients(prev => {
+              const newIng = prev ? `${prev}, ${data.content}` : data.content;
+              return newIng;
+            });
           } else {
             const scanPrompt = `I have these ingredients: ${data.content}. Suggest a healthy Indian meal.`;
             setInput(scanPrompt);
-            // Trigger send after tiny delay to ensure state update (or just pass directly)
             setTimeout(() => handleSend(scanPrompt), 100);
           }
         } else {
           setMessages(prev => [...prev, { role: "assistant", content: `Medical Analysis: ${data.content}` }]);
-          setUser(prev => prev ? ({ ...prev, health_advisor: data.content }) : null);
         }
+      } else {
+        alert("Scanner could not find any items. Please try a clearer photo.");
       }
     } catch (error) {
       alert("Failed to scan file");
@@ -623,7 +626,7 @@ export default function NutriCoachWeb() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="max-w-md w-full glass p-8 rounded-3xl space-y-6 relative border border-white/20"
+              className="max-w-md w-full glass p-6 md:p-8 rounded-3xl space-y-4 md:space-y-6 relative border border-white/20 max-h-[90vh] overflow-y-auto"
             >
               <div className="text-center space-y-2">
                 <div className="bg-primary/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/30">
@@ -652,7 +655,7 @@ export default function NutriCoachWeb() {
                   value={ingredients}
                   onChange={e => setIngredients(e.target.value)}
                   placeholder="List your available ingredients here..."
-                  className="w-full h-32 bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-primary/50 text-white resize-none text-sm"
+                  className="w-full h-24 bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-primary/50 text-white resize-none text-sm"
                 />
                 {isScanningInModal && (
                   <div className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center text-primary gap-2">
