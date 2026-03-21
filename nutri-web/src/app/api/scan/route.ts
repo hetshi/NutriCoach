@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
+const pdf = require("pdf-parse"); // Using require to avoid potential TS import issues/type mismatches
 
 export async function POST(req: Request) {
     try {
@@ -23,8 +24,37 @@ export async function POST(req: Request) {
         const base64Image = buffer.toString("base64");
         const fileType = file.type || "image/jpeg";
 
-        const prompt = "Read all text from this image very carefully. Capture every item name, quantity, and health value you see. Return only the extracted text information.";
+        if (fileType === "application/pdf") {
+            try {
+                const pdfData = await pdf(buffer);
+                const textContent = pdfData.text;
 
+                if (!textContent || textContent.trim().length < 50) {
+                    return NextResponse.json({ 
+                        content: "This PDF looks like a scanned image. Please upload high-quality PHOTOS or SCREENSHOTS of the pages instead!" 
+                    });
+                }
+
+                const response = await groq.chat.completions.create({
+                    messages: [
+                        {
+                            role: "user",
+                            content: `Analyze this multi-page medical report text: ${textContent}. List abnormal values and suggest 3-4 specific dietary changes. Format: Abnormal: ... Suggestion: ...`
+                        },
+                    ],
+                    model: "llama-3.3-70b-versatile",
+                });
+
+                return NextResponse.json({
+                    content: response.choices[0]?.message?.content || "Could not analyze the PDF text."
+                });
+            } catch (pdfErr: any) {
+                console.error("PDF Parsing error:", pdfErr);
+                return NextResponse.json({ error: "Failed to parse PDF", details: pdfErr.message }, { status: 500 });
+            }
+        }
+
+        const prompt = "Read all text from this image very carefully. Capture every item name, quantity, and health value you see. Return only the extracted text information.";
         const response = await groq.chat.completions.create({
             messages: [
                 {
@@ -44,8 +74,6 @@ export async function POST(req: Request) {
         });
 
         const rawContent = response.choices[0]?.message?.content || "";
-        console.log("Raw Vision Response:", rawContent);
-
         return NextResponse.json({
             content: rawContent || "The AI could not read any text from this image. Please try a clearer or smaller photo."
         });
