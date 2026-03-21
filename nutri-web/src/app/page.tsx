@@ -295,6 +295,13 @@ export default function NutriCoachWeb() {
               <option value="Muscle Gain">Muscle Gain</option>
               <option value="Healthy Lifestyle">Healthy Lifestyle</option>
             </select>
+            <input 
+              name="apiKey" 
+              placeholder="Groq API Key (starts with gsk_)" 
+              className="auth-input"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+            />
             <button className="w-full py-4 bg-primary text-black font-bold rounded-2xl hover:bg-primary-hover transition-all mt-4">
               Start Your Journey
             </button>
