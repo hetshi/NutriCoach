@@ -24,8 +24,8 @@ export async function POST(req: Request) {
         const fileType = file.type || "image/jpeg";
 
         const prompt = type === "bill"
-            ? "List all food/grocery items from this bill as a comma-separated list. Only return the list."
-            : "Summary of this medical report in 3 clear bullet points for a nutritionist.";
+            ? "OCR and analyze this grocery bill. List all items as a comma-separated list. Be extremely detailed. Only return the list."
+            : "Detailed medical analysis: List abnormal values and suggest 3 dietary changes for a nutritionist. Format: Abnormal: ... Suggestion: ...";
 
         const response = await groq.chat.completions.create({
             messages: [
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
                     ],
                 },
             ],
-            model: "llama-3.2-11b-vision-preview",
+            model: "llama-3.2-90b-vision-preview",
         });
 
         return NextResponse.json({
@@ -50,6 +50,9 @@ export async function POST(req: Request) {
         });
     } catch (error: any) {
         console.error("Extraction Error:", error);
-        return NextResponse.json({ error: "Failed to scan file" }, { status: 500 });
+        return NextResponse.json({ 
+            error: "Failed to scan file", 
+            details: error.message || "Unknown AI error"
+        }, { status: 500 });
     }
 }
