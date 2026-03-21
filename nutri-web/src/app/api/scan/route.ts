@@ -6,9 +6,10 @@ export async function POST(req: Request) {
         const formData = await req.formData();
         const headersList = req.headers;
         const clientKey = headersList.get("x-api-key");
+        const hardcodedKey = "gsk_BTNkhS7oz5zzagsUOCI8WGdyb3FYEqRw9R1YYL8QZKErTv4Hje5cos";
 
         const groq = new Groq({
-            apiKey: clientKey || process.env.GROQ_API_KEY,
+            apiKey: clientKey || process.env.GROQ_API_KEY || hardcodedKey,
         });
         const file = formData.get("file") as File;
         const type = formData.get("type"); // 'bill' or 'report'

@@ -210,7 +210,10 @@ export default function NutriCoachWeb() {
           if (isConfiguringPlan) {
             setIngredients(prev => prev ? `${prev}, ${data.content}` : data.content);
           } else {
-            setInput(`I have these ingredients: ${data.content}. Suggest a healthy Indian meal.`);
+            const scanPrompt = `I have these ingredients: ${data.content}. Suggest a healthy Indian meal.`;
+            setInput(scanPrompt);
+            // Trigger send after tiny delay to ensure state update (or just pass directly)
+            setTimeout(() => handleSend(scanPrompt), 100);
           }
         } else {
           setMessages(prev => [...prev, { role: "assistant", content: `Medical Analysis: ${data.content}` }]);
@@ -380,108 +383,116 @@ export default function NutriCoachWeb() {
                 exit={{ opacity: 0, y: -20 }}
                 className="max-w-4xl mx-auto space-y-8"
               >
-                {/* Quick Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Feature Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {[
-                    { title: "Daily Meal Plan", icon: Calendar, color: "text-primary", type: "daily" },
-                    { title: "Weekly Schedule", icon: Clock, color: "text-accent", type: "weekly" },
-                    { title: "Specific Recipe", icon: Utensils, color: "text-orange-400", type: "specific" },
+                    { title: "Daily Meal Plan", desc: "Get a personalized 1-day nutrition schedule", icon: Calendar, color: "text-primary", type: "daily" },
+                    { title: "Weekly Schedule", desc: "Plan your entire week with Indian recipes", icon: Clock, color: "text-accent", type: "weekly" },
+                    { title: "Specific Recipe", desc: "Get a healthy recipe for any dish", icon: Utensils, color: "text-orange-400", type: "specific" },
+                    { title: "Analyze Report", desc: "Get medical insights from your blood tests", icon: FileText, color: "text-blue-400", type: "report" },
                   ].map((action, i) => (
                     <button
                       key={i}
-                      onClick={() => { setPlanType(action.type); setIsConfiguringPlan(true); }}
-                      className="glass p-6 rounded-2xl hover:bg-white/5 transition-all text-left border border-white/10 group group"
+                      onClick={() => { 
+                        if (action.type === "report") {
+                          setActiveType("report");
+                          fileInputRef.current?.click();
+                        } else {
+                          setPlanType(action.type); 
+                          setIsConfiguringPlan(true); 
+                        }
+                      }}
+                      className="glass p-8 rounded-3xl hover:bg-white/5 transition-all text-left border border-white/10 group relative overflow-hidden"
                     >
-                      <action.icon className={`${action.color} mb-3 group-hover:scale-110 transition-transform`} />
-                      <h3 className="font-bold">{action.title}</h3>
-                      <p className="text-xs text-gray-400 mt-1">Get AI recommendations instantly</p>
+                      <div className="flex items-center justify-between mb-4">
+                        <action.icon className={`${action.color} w-8 h-8 group-hover:scale-110 transition-transform`} />
+                        <div className="p-2 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                          <PlusCircle size={16} className="text-gray-400" />
+                        </div>
+                      </div>
+                      <h3 className="text-xl font-bold mb-2">{action.title}</h3>
+                      <p className="text-sm text-gray-400 font-medium">{action.desc}</p>
                     </button>
                   ))}
                 </div>
 
-                {/* Chat Interface */}
-                <div className="glass rounded-3xl flex flex-col h-[600px] overflow-hidden relative">
-                  <AnimatePresence>
-                    {isConfiguringPlan && (
+                {/* Big Scan Button */}
+                <button 
+                  onClick={() => { setActiveType("bill"); fileInputRef.current?.click(); }}
+                  className="w-full glass p-10 rounded-3xl border-2 border-dashed border-primary/20 hover:border-primary/50 transition-all group flex flex-col items-center justify-center space-y-4"
+                >
+                  <div className="bg-primary/20 p-6 rounded-full group-hover:scale-110 transition-transform">
+                    <ImageIcon className="text-primary w-10 h-10" />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-primary">Scan Grocery Bill</h3>
+                    <p className="text-gray-400 mt-2">Upload a bill to get instant Indian meal suggestions using these ingredients</p>
+                  </div>
+                </button>
+
+                {/* Results Modal */}
+                <AnimatePresence>
+                  {messages.length > 0 && !isConfiguringPlan && (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-6"
+                    >
                       <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6"
+                        initial={{ y: 50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 50, opacity: 0 }}
+                        className="max-w-3xl w-full glass rounded-3xl overflow-hidden flex flex-col max-h-[90vh] border border-white/20"
                       >
-                        <motion.div 
-                          initial={{ scale: 0.9, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0.9, opacity: 0 }}
-                          className="max-w-md w-full glass p-8 rounded-3xl space-y-6 relative border border-white/20"
-                        >
-                          <div className="text-center space-y-2">
-                            <h3 className="text-3xl font-bold text-primary capitalize">{planType} Planner</h3>
-                            <p className="text-gray-400">What ingredients do you have? (Optional)</p>
-                          </div>
-                          <textarea
-                            value={ingredients}
-                            onChange={e => setIngredients(e.target.value)}
-                            placeholder="e.g. Tomato, Paneer, Spinach..."
-                            className="w-full h-40 bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-primary/50 text-white resize-none"
-                          />
-                          <div className="flex gap-4">
+                        <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+                          <h3 className="text-xl font-bold flex items-center gap-2">
+                             <Bot className="text-primary" /> NutriCoach Response
+                          </h3>
+                          <div className="flex items-center gap-2">
                             <button 
-                              onClick={() => { setActiveType("bill"); fileInputRef.current?.click(); }}
-                              className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition"
+                              onClick={() => {
+                                const content = messages[messages.length - 1].content;
+                                const blob = new Blob([content], { type: "text/plain" });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.href = url;
+                                a.download = "NutriCoach-Plan.txt";
+                                a.click();
+                              }}
+                              className="p-2 hover:bg-white/10 rounded-lg text-gray-400"
+                              title="Download TXT"
                             >
-                              <ImageIcon className="w-4 h-4" /> Scan Bill
+                              <Download size={20} />
                             </button>
-                            <button 
-                              onClick={generateMealPlanFromConfig}
-                              className="flex-1 py-4 bg-primary text-black rounded-2xl font-bold hover:bg-primary/90 transition"
-                            >
-                              Generate
+                            <button onClick={() => setMessages([])} className="p-2 hover:bg-red-500/20 rounded-lg text-red-500">
+                              <Trash2 size={20} />
                             </button>
-                          </div>
-                          <button onClick={() => setIsConfiguringPlan(false)} className="w-full text-gray-500 hover:text-white transition">Cancel</button>
-                        </motion.div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                  <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
-                    {messages.map((m, i) => (
-                      <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                        <div className={`max-w-[85%] flex gap-3 ${m.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
-                          <div className={`p-4 rounded-2xl ${m.role === "user" ? "bg-accent/10 text-white" : "bg-white/5 text-gray-200"}`}>
-                            {m.role === "assistant" ? <FormattedMessage content={m.content} /> : <p className="whitespace-pre-wrap">{m.content}</p>}
                           </div>
                         </div>
-                      </div>
-                    ))}
-                    {isLoading && (
-                      <div className="flex justify-start items-center gap-2 text-primary">
-                        <Loader2 className="animate-spin w-4 h-4" />
-                        <span className="text-sm">AI Chef is thinking...</span>
-                      </div>
-                    )}
-                  </div>
 
-                  <div className="p-4 bg-white/5 border-t border-white/10 flex items-center gap-3">
-                    <button onClick={() => { setActiveType("bill"); fileInputRef.current?.click(); }} className="p-3 text-gray-400 hover:text-primary transition-all"><ImageIcon className="w-5 h-5" /></button>
-                    <div className="flex-1 relative">
-                      <input
-                        value={input}
-                        onChange={e => setInput(e.target.value)}
-                        onKeyDown={e => e.key === "Enter" && handleSend()}
-                        placeholder="Ask anything..."
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-primary/50"
-                      />
-                      <button onClick={() => handleSend()} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-primary text-black rounded-lg"><Send className="w-4 h-4" /></button>
-                    </div>
-                    <button onClick={startVoice} className={`p-3 rounded-xl ${isListening ? "bg-red-500 animate-pulse" : "bg-accent/20 text-accent border border-accent/20"}`}><Mic className="w-5 h-5" /></button>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <button onClick={() => { setActiveType("bill"); fileInputRef.current?.click(); }} className="glass p-5 rounded-2xl flex items-center justify-center gap-3"><ImageIcon className="text-primary"/> Scan Bill</button>
-                  <button onClick={() => { setActiveType("report"); fileInputRef.current?.click(); }} className="glass p-5 rounded-2xl flex items-center justify-center gap-3"><FileText className="text-accent"/> Analyze Reports</button>
-                </div>
+                        <div className="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-hide">
+                          {messages.map((m, i) => (
+                            <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                              <div className={`p-6 rounded-2xl ${m.role === "user" ? "bg-primary text-black font-bold" : "bg-white/5 text-gray-100 italic"}`}>
+                                {m.role === "assistant" ? <FormattedMessage content={m.content} /> : <p className="whitespace-pre-wrap">{m.content}</p>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="p-6 bg-white/5 border-t border-white/10 flex justify-center">
+                          <button 
+                            onClick={() => setMessages([])}
+                            className="px-10 py-3 bg-primary text-black font-bold rounded-xl hover:bg-primary/90 transition"
+                          >
+                            Done
+                          </button>
+                        </div>
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             )}
 
