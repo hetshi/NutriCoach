@@ -236,8 +236,9 @@ export default function NutriCoachWeb() {
       } else {
         alert("Scanner finished but no text was found. Try a closer, brighter photo of the items.");
       }
-    } catch (error) {
-      alert("Failed to scan file");
+    } catch (error: any) {
+      console.error("Scan error details:", error);
+      alert(`SCAN FAILURE: ${error.message || "The AI server could not read this image. Please ensure it's a clear photo under 4MB."}`);
     } finally {
       setIsLoading(false);
       setIsScanningInModal(false);
@@ -648,9 +649,11 @@ export default function NutriCoachWeb() {
                     </div>
                     <button 
                       onClick={() => { setActiveType("report"); fileInputRef.current?.click(); }}
-                      className="w-full md:w-auto px-8 py-4 bg-accent text-black rounded-2xl font-bold hover:bg-accent/90 transition shadow-lg shadow-accent/20 flex items-center justify-center gap-2"
+                      disabled={isLoading}
+                      className="w-full md:w-auto px-8 py-4 bg-accent text-black rounded-2xl font-bold hover:bg-accent/90 transition shadow-lg shadow-accent/20 flex items-center justify-center gap-2 disabled:opacity-50"
                     >
-                      <ImageIcon className="w-5 h-5" /> Upload Now
+                      {isLoading && activeType === "report" ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
+                      {isLoading && activeType === "report" ? "Analyzing..." : "Upload Now"}
                     </button>
                   </div>
                   <div className="p-6 bg-accent/5 rounded-2xl border border-accent/20 min-h-[120px] text-gray-300 italic text-sm leading-relaxed backdrop-blur-sm">
