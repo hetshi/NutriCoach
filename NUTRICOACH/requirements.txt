@@ -1,0 +1,10 @@
+customtkinter
+groq
+python-dotenv
+tkintermapview
+geocoder
+requests
+fpdf2
+SpeechRecognition
+pyttsx3
+PyAudio
