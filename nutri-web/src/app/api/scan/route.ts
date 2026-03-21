@@ -21,9 +21,10 @@ export async function POST(req: Request) {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
         const base64Image = buffer.toString("base64");
+        const fileType = file.type || "image/jpeg";
 
         const prompt = type === "bill"
-            ? "Extract a comma-separated list of ingredients from this grocery bill. Only return the list."
+            ? "List all food/grocery items from this bill as a comma-separated list. Only return the list."
             : "Summary of this medical report in 3 clear bullet points for a nutritionist.";
 
         const response = await groq.chat.completions.create({
@@ -35,13 +36,13 @@ export async function POST(req: Request) {
                         {
                             type: "image_url",
                             image_url: {
-                                url: `data:image/jpeg;base64,${base64Image}`,
+                                url: `data:${fileType};base64,${base64Image}`,
                             },
                         },
                     ],
                 },
             ],
-            model: "llama-3.2-11b-vision-preview", // Vision model
+            model: "llama-3.2-11b-vision-preview",
         });
 
         return NextResponse.json({
