@@ -530,11 +530,31 @@ export default function NutriCoachWeb() {
                   <button
                     onClick={handleNutritionistSearch}
                     disabled={isSearching}
-                    className="bg-primary text-black font-bold px-8 rounded-2xl hover:bg-primary-hover disabled:opacity-50"
+                    className="bg-primary text-black font-bold px-8 rounded-2xl hover:bg-primary-hover disabled:opacity-50 transition-all flex items-center gap-2"
                   >
+                    {isSearching && <Loader2 className="w-4 h-4 animate-spin" />}
                     {isSearching ? "Searching..." : "Search"}
                   </button>
                 </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {["Mumbai", "Delhi", "Bangalore", "Pune", "Hyderabad", "Chennai"].map(city => (
+                    <button
+                      key={city}
+                      onClick={() => { setSearchCity(city); setTimeout(handleNutritionistSearch, 100); }}
+                      className="px-4 py-2 rounded-full border border-white/10 hover:border-primary/50 hover:bg-primary/5 transition-all text-sm text-gray-400 hover:text-primary"
+                    >
+                      {city}
+                    </button>
+                  ))}
+                </div>
+
+                {nutritionists.length === 0 && !isSearching && (
+                  <div className="text-center py-20 glass rounded-3xl border border-dashed border-white/10">
+                    <MapPin className="w-12 h-12 text-gray-700 mx-auto mb-4" />
+                    <p className="text-gray-500 font-medium">Search for your city to find top-rated nutritionists near you.</p>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {nutritionists.map((n, i) => (
