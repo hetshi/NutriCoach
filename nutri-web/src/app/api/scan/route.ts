@@ -23,9 +23,7 @@ export async function POST(req: Request) {
         const base64Image = buffer.toString("base64");
         const fileType = file.type || "image/jpeg";
 
-        const prompt = type === "bill"
-            ? "OCR and analyze this grocery bill. List all items as a comma-separated list. Be extremely detailed. Only return the list."
-            : "Detailed medical analysis: List abnormal values and suggest 3 dietary changes for a nutritionist. Format: Abnormal: ... Suggestion: ...";
+        const prompt = "Transcribe all text from this image. If it's a grocery bill, list the items. If it's a medical report, extract the key values and recommendations.";
 
         const response = await groq.chat.completions.create({
             messages: [
@@ -42,17 +40,20 @@ export async function POST(req: Request) {
                     ],
                 },
             ],
-            model: "llama-3.2-90b-vision-preview",
+            model: "llama-3.2-11b-vision-preview",
         });
 
+        const rawContent = response.choices[0]?.message?.content || "";
+        console.log("Raw Vision Response:", rawContent);
+
         return NextResponse.json({
-            content: response.choices[0]?.message?.content || "Could not extract data."
+            content: rawContent || "The AI could not read any text from this image. Please try a clearer or smaller photo."
         });
     } catch (error: any) {
         console.error("Extraction Error:", error);
         return NextResponse.json({ 
             error: "Failed to scan file", 
-            details: error.message || "Unknown AI error"
+            details: error.response?.data?.error?.message || error.message || "Unknown AI error"
         }, { status: 500 });
     }
 }
