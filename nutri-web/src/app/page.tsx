@@ -351,7 +351,7 @@ export default function NutriCoachWeb() {
             <h1 className="text-xl font-bold gradient-text hidden md:block">NutriCoach</h1>
           </div>
           <div className="mt-2 space-y-1 hidden md:block">
-            <span className="text-[12px] text-pink-500 font-bold uppercase tracking-[0.2em] bg-pink-500/10 px-3 py-1 rounded-full border border-pink-500/20 animate-pulse block text-center">v2.2 PDF ACTIVE</span>
+            <span className="text-[12px] text-green-500 font-bold uppercase tracking-[0.2em] bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20 animate-pulse block text-center">v2.2 PDF ACTIVE</span>
             <span className="text-[9px] text-gray-600 font-mono block text-center">Sync ID: {new Date().getTime().toString().slice(-6)}</span>
           </div>
         </div>
@@ -650,7 +650,7 @@ export default function NutriCoachWeb() {
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="space-y-1">
                       <h4 className="font-bold flex items-center gap-2 text-2xl italic text-accent"><FileText className="w-6 h-6" /> Medical Insights</h4>
-                      <p className="text-xs text-gray-500 font-bold uppercase tracking-wider text-red-500">Note: Upload Photo/Screenshot only (No PDF)</p>
+                      <p className="text-xs text-gray-500 font-bold uppercase tracking-wider text-green-500">Note: Upload Photo, Screenshot, or PDF</p>
                     </div>
                     <button 
                       onClick={() => { setActiveType("report"); fileInputRef.current?.click(); }}

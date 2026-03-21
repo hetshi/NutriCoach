@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
                 if (!textContent || textContent.trim().length < 50) {
                     return NextResponse.json({ 
-                        content: "This PDF looks like a scanned image. Please upload high-quality PHOTOS or SCREENSHOTS of the pages instead!" 
+                        content: "This PDF appears to be a scanned image or has very little text. For best results, please upload a clear PHOTO or SCREENSHOT of the report instead, or ensure the PDF is text-searchable." 
                     });
                 }
 
