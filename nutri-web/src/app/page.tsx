@@ -637,10 +637,18 @@ export default function NutriCoachWeb() {
                   </div>
                 </div>
 
-                <div className="glass p-8 rounded-3xl space-y-4">
-                  <h4 className="font-bold flex items-center gap-2"><FileText className="w-4 h-4 text-accent" /> Medical Insights</h4>
+                <div className="glass p-8 rounded-3xl space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold flex items-center gap-2 text-xl italic text-accent"><FileText className="w-5 h-5" /> Medical Insights</h4>
+                    <button 
+                      onClick={() => { setActiveType("report"); fileInputRef.current?.click(); }}
+                      className="px-6 py-2 bg-accent/20 text-accent border border-accent/30 rounded-xl font-bold hover:bg-accent/30 transition flex items-center gap-2 text-sm"
+                    >
+                      <ImageIcon className="w-4 h-4" /> Upload Report
+                    </button>
+                  </div>
                   <div className="p-6 bg-accent/5 rounded-2xl border border-accent/20 min-h-[100px] text-gray-300 italic text-sm leading-relaxed">
-                    {user.health_advisor || "No health reports analyzed yet. Upload a report in the Dashboard to see AI insights here."}
+                    {user.health_advisor || "No health reports analyzed yet. Please upload your blood test or medical report to get personalized AI insights."}
                   </div>
                 </div>
               </motion.div>
