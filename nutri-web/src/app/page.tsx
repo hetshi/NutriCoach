@@ -64,6 +64,7 @@ export default function NutriCoachWeb() {
   const [ingredients, setIngredients] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [isScanningInModal, setIsScanningInModal] = useState(false);
+  const [mealTime, setMealTime] = useState<"Breakfast" | "Lunch" | "Dinner">("Lunch");
 
   // Load settings from localStorage
   useEffect(() => {
@@ -136,7 +137,7 @@ export default function NutriCoachWeb() {
 
   const generateMealPlanFromConfig = () => {
     if (!planType) return;
-    const prompt = `I am using my Ingredient Book. Plan type: ${planType}. ${ingredients ? `Ingredients available: ${ingredients}.` : "Suggest healthy recipes."} Please provide the plan with clickable YouTube recipe links using the format [Watch Recipe](URL).`;
+    const prompt = `I am using my Ingredient Book. Plan type: ${planType}. ${planType === "specific" ? `Specifically for ${mealTime}. ` : ""}${ingredients ? `Ingredients available: ${ingredients}.` : "Suggest healthy recipes."} Please provide the plan with clickable YouTube recipe links using the format [Watch Recipe](URL).`;
     
     setIsConfiguringPlan(false);
     handleSend(prompt);
@@ -191,7 +192,7 @@ export default function NutriCoachWeb() {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    setIsLoading(true);
+    if (isConfiguringPlan) setIsScanningInModal(true);
     const formData = new FormData();
     formData.append("file", file);
     formData.append("type", activeType);
@@ -221,6 +222,7 @@ export default function NutriCoachWeb() {
       alert("Failed to scan file");
     } finally {
       setIsLoading(false);
+      setIsScanningInModal(false);
     }
   };
 
@@ -630,6 +632,20 @@ export default function NutriCoachWeb() {
                 <h3 className="text-3xl font-bold text-primary text-center w-full">Ingredient Book</h3>
                 <p className="text-gray-400 capitalize text-center w-full">{planType} Configuration</p>
               </div>
+
+              {planType === "specific" && (
+                <div className="flex gap-2 justify-center">
+                  {(["Breakfast", "Lunch", "Dinner"] as const).map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => setMealTime(t)}
+                      className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${mealTime === t ? "bg-primary text-black border-primary" : "bg-white/5 text-gray-400 border-white/10 hover:border-white/20"}`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              )}
               
               <div className="relative">
                 <textarea
