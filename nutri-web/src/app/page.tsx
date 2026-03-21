@@ -193,6 +193,12 @@ export default function NutriCoachWeb() {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (file.type === "application/pdf") {
+      alert("PDFs are not supported yet. Please take a SCREENSHOT or a PHOTO of your report/bill and upload that instead!");
+      return;
+    }
+
     if (isConfiguringPlan) setIsScanningInModal(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -645,7 +651,7 @@ export default function NutriCoachWeb() {
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="space-y-1">
                       <h4 className="font-bold flex items-center gap-2 text-2xl italic text-accent"><FileText className="w-6 h-6" /> Medical Insights</h4>
-                      <p className="text-xs text-gray-500">Analysis of your latest health reports</p>
+                      <p className="text-xs text-gray-500 font-bold uppercase tracking-wider text-red-500">Note: Upload Photo/Screenshot only (No PDF)</p>
                     </div>
                     <button 
                       onClick={() => { setActiveType("report"); fileInputRef.current?.click(); }}
@@ -738,7 +744,14 @@ export default function NutriCoachWeb() {
         )}
       </AnimatePresence>
 
-      <input type="file" id="bill-scan-input" ref={fileInputRef} onChange={handleFileUpload} hidden />
+      <input 
+        type="file" 
+        id="bill-scan-input" 
+        ref={fileInputRef} 
+        onChange={handleFileUpload} 
+        accept="image/*" 
+        hidden 
+      />
     </div>
   );
 }
