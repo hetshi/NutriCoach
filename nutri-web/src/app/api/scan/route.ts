@@ -23,7 +23,7 @@ export async function POST(req: Request) {
         const base64Image = buffer.toString("base64");
         const fileType = file.type || "image/jpeg";
 
-        const prompt = "Transcribe all text from this image. If it's a grocery bill, list the items. If it's a medical report, extract the key values and recommendations.";
+        const prompt = "Read all text from this image very carefully. Capture every item name, quantity, and health value you see. Return only the extracted text information.";
 
         const response = await groq.chat.completions.create({
             messages: [
