@@ -749,7 +749,7 @@ export default function NutriCoachWeb() {
         id="bill-scan-input" 
         ref={fileInputRef} 
         onChange={handleFileUpload} 
-        accept="image/*" 
+        accept="image/*,application/pdf" 
         hidden 
       />
     </div>
