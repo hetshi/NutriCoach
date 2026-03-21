@@ -20,7 +20,8 @@ import {
   Calendar,
   Utensils,
   PlusCircle,
-  Clock
+  Clock,
+  Youtube
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
