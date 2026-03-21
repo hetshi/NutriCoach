@@ -15,7 +15,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
 AI_PROVIDER = os.getenv("AI_PROVIDER", "groq")
 
 # GROQ CONFIG
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_API_KEY = "gsk_BTNkhS7oz5zzagsUOCI8WGdyb3FYEqRw9R1YYL8QZKErTv4Hje5cos"
 GROQ_MODEL = "llama-3.1-8b-instant"
 GROQ_TEMPERATURE = 0.7
 GROQ_MAX_TOKENS = 4000
