@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
-
 export async function POST(req: Request) {
   try {
     const { messages, user } = await req.json();
+    const headersList = req.headers;
+    const clientKey = headersList.get("x-api-key");
+
+    const groq = new Groq({
+      apiKey: clientKey || process.env.GROQ_API_KEY,
+    });
 
     const systemPrompt = `You are NutriCoach, a high-end AI Indian Nutritionist. 
           Your goal is to provide precise, practical, and highly visual meal plans and health advice for your client: ${user?.name || "User"}.

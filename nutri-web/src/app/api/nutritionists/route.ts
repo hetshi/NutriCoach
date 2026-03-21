@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
 
-const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY,
-});
-
 export async function POST(req: Request) {
     try {
         const { city } = await req.json();
+        const headersList = req.headers;
+        const clientKey = headersList.get("x-api-key");
+
+        const groq = new Groq({
+            apiKey: clientKey || process.env.GROQ_API_KEY,
+        });
 
         const prompt = `
     You are a specialized local health assistant for India.

@@ -49,9 +49,7 @@ interface UserProfile {
 export default function NutriCoachWeb() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [activeTab, setActiveTab] = useState<"dashboard" | "history" | "nutritionists" | "account">("dashboard");
-  const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hello! I'm NutriCoach, your AI Indian Nutritionist. How can I help you today?" }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -64,21 +62,21 @@ export default function NutriCoachWeb() {
   const [isConfiguringPlan, setIsConfiguringPlan] = useState(false);
   const [planType, setPlanType] = useState<string | null>(null);
   const [ingredients, setIngredients] = useState("");
+  const [apiKey, setApiKey] = useState("");
 
-  // Load user from localStorage
+  // Load settings from localStorage
   useEffect(() => {
     const savedUser = localStorage.getItem("nutricoach_user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    if (savedUser) setUser(JSON.parse(savedUser));
+    const savedKey = localStorage.getItem("nutricoach_key");
+    if (savedKey) setApiKey(savedKey);
   }, []);
 
-  // Save user to localStorage
+  // Save settings to localStorage
   useEffect(() => {
-    if (user) {
-      localStorage.setItem("nutricoach_user", JSON.stringify(user));
-    }
-  }, [user]);
+    if (user) localStorage.setItem("nutricoach_user", JSON.stringify(user));
+    if (apiKey) localStorage.setItem("nutricoach_key", apiKey);
+  }, [user, apiKey]);
 
   // Auto-scroll logic
   useEffect(() => {
@@ -98,12 +96,15 @@ export default function NutriCoachWeb() {
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-api-key": apiKey
+        },
         body: JSON.stringify({ messages: newMessages, user }),
       });
 
       if (!response.ok) {
-        throw new Error(`AI error: ${response.status}. Please check your API key on Render.`);
+        throw new Error(`AI error: ${response.status}. Make sure your API Key is set in Settings/Account.`);
       }
 
       const data = await response.json();
@@ -152,7 +153,10 @@ export default function NutriCoachWeb() {
     try {
       const response = await fetch("/api/nutritionists", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-api-key": apiKey
+        },
         body: JSON.stringify({ city: searchCity }),
       });
       const data = await response.json();
@@ -195,7 +199,11 @@ export default function NutriCoachWeb() {
     formData.append("file", file);
     formData.append("type", activeType);
     try {
-      const response = await fetch("/api/scan", { method: "POST", body: formData });
+      const response = await fetch("/api/scan", { 
+        method: "POST", 
+        body: formData,
+        headers: { "x-api-key": apiKey }
+      });
       const data = await response.json();
       if (data.content) {
         if (activeType === "bill") {
@@ -339,7 +347,7 @@ export default function NutriCoachWeb() {
         </nav>
 
         <button
-          onClick={() => { localStorage.removeItem("nutricoach_user"); setUser(null); }}
+          onClick={() => { localStorage.clear(); setUser(null); window.location.reload(); }}
           className="w-full flex items-center gap-4 p-4 rounded-2xl text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-all mt-auto"
         >
           <LogOut className="w-5 h-5 shrink-0" />
@@ -393,48 +401,53 @@ export default function NutriCoachWeb() {
 
                 {/* Chat Interface */}
                 <div className="glass rounded-3xl flex flex-col h-[600px] overflow-hidden relative">
-                  {isConfiguringPlan && (
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="absolute inset-0 z-20 bg-[#0a0a0a]/95 flex items-center justify-center p-6"
-                    >
-                      <div className="max-w-md w-full space-y-6">
-                        <div className="text-center space-y-2">
-                          <h3 className="text-2xl font-bold text-primary capitalize">{planType} Planner</h3>
-                          <p className="text-gray-400">What ingredients do you have? (Optional)</p>
-                        </div>
-                        <textarea
-                          value={ingredients}
-                          onChange={e => setIngredients(e.target.value)}
-                          placeholder="e.g. Tomato, Paneer, Spinach..."
-                          className="w-full h-32 bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-primary/50 text-white"
-                        />
-                        <div className="flex gap-4">
-                          <button 
-                            onClick={() => { setActiveType("bill"); fileInputRef.current?.click(); }}
-                            className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold flex items-center justify-center gap-2"
-                          >
-                            <ImageIcon className="w-4 h-4" /> Scan Bill
-                          </button>
-                          <button 
-                            onClick={generateMealPlanFromConfig}
-                            className="flex-1 py-4 bg-primary text-black rounded-2xl font-bold"
-                          >
-                            Generate
-                          </button>
-                        </div>
-                        <button onClick={() => setIsConfiguringPlan(false)} className="w-full text-gray-500 hover:text-white transition">Cancel</button>
-                      </div>
-                    </motion.div>
-                  )}
+                  <AnimatePresence>
+                    {isConfiguringPlan && (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6"
+                      >
+                        <motion.div 
+                          initial={{ scale: 0.9, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0.9, opacity: 0 }}
+                          className="max-w-md w-full glass p-8 rounded-3xl space-y-6 relative border border-white/20"
+                        >
+                          <div className="text-center space-y-2">
+                            <h3 className="text-3xl font-bold text-primary capitalize">{planType} Planner</h3>
+                            <p className="text-gray-400">What ingredients do you have? (Optional)</p>
+                          </div>
+                          <textarea
+                            value={ingredients}
+                            onChange={e => setIngredients(e.target.value)}
+                            placeholder="e.g. Tomato, Paneer, Spinach..."
+                            className="w-full h-40 bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-primary/50 text-white resize-none"
+                          />
+                          <div className="flex gap-4">
+                            <button 
+                              onClick={() => { setActiveType("bill"); fileInputRef.current?.click(); }}
+                              className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition"
+                            >
+                              <ImageIcon className="w-4 h-4" /> Scan Bill
+                            </button>
+                            <button 
+                              onClick={generateMealPlanFromConfig}
+                              className="flex-1 py-4 bg-primary text-black rounded-2xl font-bold hover:bg-primary/90 transition"
+                            >
+                              Generate
+                            </button>
+                          </div>
+                          <button onClick={() => setIsConfiguringPlan(false)} className="w-full text-gray-500 hover:text-white transition">Cancel</button>
+                        </motion.div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                   <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
                     {messages.map((m, i) => (
                       <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                         <div className={`max-w-[85%] flex gap-3 ${m.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${m.role === "user" ? "bg-accent/20 border border-accent/30" : "bg-primary/20 border border-primary/30"}`}>
-                            {m.role === "user" ? <User className="w-4 h-4 text-accent" /> : <Bot className="w-4 h-4 text-primary" />}
-                          </div>
                           <div className={`p-4 rounded-2xl ${m.role === "user" ? "bg-accent/10 text-white" : "bg-white/5 text-gray-200"}`}>
                             {m.role === "assistant" ? <FormattedMessage content={m.content} /> : <p className="whitespace-pre-wrap">{m.content}</p>}
                           </div>
@@ -564,23 +577,32 @@ export default function NutriCoachWeb() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="glass p-6 rounded-3xl space-y-4">
-                    <h4 className="font-bold flex items-center gap-2"><Settings className="w-4 h-4 text-primary" /> Profile Metrics</h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-gray-400">Age</span><span>{user.age} Years</span>
-                      </div>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-gray-400">Height</span><span>{user.height} cm</span>
-                      </div>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-gray-400">Weight</span><span>{user.weight} kg</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">BMI</span><span className="font-bold text-primary">{(Number(user.weight) / Math.pow(Number(user.height) / 100, 2)).toFixed(1)}</span>
+                    <div className="glass p-6 rounded-3xl space-y-4">
+                      <h4 className="font-bold flex items-center gap-2"><Settings className="w-4 h-4 text-primary" /> App Settings</h4>
+                      <div className="space-y-4">
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-500">Groq API Key (Optional if set on Render)</label>
+                          <input 
+                            type="password" 
+                            value={apiKey} 
+                            onChange={(e) => setApiKey(e.target.value)}
+                            placeholder="gsk_..."
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-primary/50"
+                          />
+                        </div>
+                        <div className="pt-2 border-t border-white/5 space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-400">Age</span><span>{user.age} Years</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-400">Height</span><span>{user.height} cm</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-400">Weight</span><span>{user.weight} kg</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
                   <div className="glass p-6 rounded-3xl space-y-4">
                     <h4 className="font-bold flex items-center gap-2"><Leaf className="w-4 h-4 text-primary" /> Diet & Goal</h4>
