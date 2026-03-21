@@ -203,12 +203,16 @@ export default function NutriCoachWeb() {
         headers: { "x-api-key": apiKey }
       });
       const data = await response.json();
+      console.log("Scan Result:", data);
+      
       if (data.content) {
         if (activeType === "bill") {
           if (isConfiguringPlan) {
+            // Force ingredients update
+            const result = data.content.trim();
             setIngredients(prev => {
-              const newIng = prev ? `${prev}, ${data.content}` : data.content;
-              return newIng;
+              const joined = prev ? `${prev}, ${result}` : result;
+              return joined;
             });
           } else {
             const scanPrompt = `I have these ingredients: ${data.content}. Suggest a healthy Indian meal.`;
@@ -219,7 +223,7 @@ export default function NutriCoachWeb() {
           setMessages(prev => [...prev, { role: "assistant", content: `Medical Analysis: ${data.content}` }]);
         }
       } else {
-        alert("Scanner could not find any items. Please try a clearer photo.");
+        alert("Scanner finished but no text was found. Try a closer, brighter photo of the items.");
       }
     } catch (error) {
       alert("Failed to scan file");
@@ -397,6 +401,7 @@ export default function NutriCoachWeb() {
                        onClick={() => { 
                          setPlanType(action.type); 
                          setIsConfiguringPlan(true); 
+                         setActiveType("bill"); // Force bill mode
                        }}
                        className="glass p-8 rounded-3xl hover:bg-white/5 transition-all text-left border border-white/10 group relative pointer-events-auto"
                      >
@@ -620,13 +625,13 @@ export default function NutriCoachWeb() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-center justify-center p-6"
+            className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-start justify-center p-4 md:p-10 overflow-y-auto"
           >
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="max-w-md w-full glass p-6 md:p-8 rounded-3xl space-y-4 md:space-y-6 relative border border-white/20 max-h-[90vh] overflow-y-auto"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              className="max-w-md w-full glass p-6 md:p-10 rounded-3xl space-y-6 relative border border-white/20 my-auto shadow-2xl"
             >
               <div className="text-center space-y-2">
                 <div className="bg-primary/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/30">
