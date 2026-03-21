@@ -60,6 +60,9 @@ export default function NutriCoachWeb() {
   const [searchCity, setSearchCity] = useState("");
   const [nutritionists, setNutritionists] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isConfiguringPlan, setIsConfiguringPlan] = useState(false);
+  const [planType, setPlanType] = useState<string | null>(null);
+  const [ingredients, setIngredients] = useState("");
 
   // Load user from localStorage
   useEffect(() => {
@@ -98,6 +101,10 @@ export default function NutriCoachWeb() {
         body: JSON.stringify({ messages: newMessages, user }),
       });
 
+      if (!response.ok) {
+        throw new Error(`AI error: ${response.status}. Please check your API key on Render.`);
+      }
+
       const data = await response.json();
       if (data.content) {
         const assistantMessage = { role: "assistant" as const, content: data.content };
@@ -117,11 +124,25 @@ export default function NutriCoachWeb() {
           }) : null);
         }
       }
-    } catch (error) {
-      setMessages(prev => [...prev, { role: "assistant", content: "I'm having trouble connecting to the brain." }]);
+    } catch (error: any) {
+      setMessages(prev => [...prev, { role: "assistant", content: `Error: ${error.message || "I'm having trouble connecting to the brain."}` }]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const generateMealPlanFromConfig = () => {
+    if (!planType) return;
+    const prompt = planType === "daily" 
+      ? `Generate a 1-day meal plan. ${ingredients ? `Ingredients I have: ${ingredients}` : "Use standard healthy options."}`
+      : planType === "weekly"
+      ? `Generate a 7-day Indian meal plan. ${ingredients ? `Use these ingredients: ${ingredients}` : "Vary the dishes."}`
+      : `Suggest a specific healthy recipe. ${ingredients ? `I have: ${ingredients}` : ""}`;
+    
+    setIsConfiguringPlan(false);
+    handleSend(prompt);
+    setPlanType(null);
+    setIngredients("");
   };
 
   const handleNutritionistSearch = async () => {
@@ -177,7 +198,11 @@ export default function NutriCoachWeb() {
       const data = await response.json();
       if (data.content) {
         if (activeType === "bill") {
-          setInput(`I have these ingredients: ${data.content}. Suggest a healthy Indian meal.`);
+          if (isConfiguringPlan) {
+            setIngredients(prev => prev ? `${prev}, ${data.content}` : data.content);
+          } else {
+            setInput(`I have these ingredients: ${data.content}. Suggest a healthy Indian meal.`);
+          }
         } else {
           setMessages(prev => [...prev, { role: "assistant", content: `Medical Analysis: ${data.content}` }]);
           setUser(prev => prev ? ({ ...prev, health_advisor: data.content }) : null);
@@ -191,6 +216,32 @@ export default function NutriCoachWeb() {
   };
 
   // --- Auth Screen Component ---
+  const FormattedMessage = ({ content }: { content: string }) => {
+    const parts = content.split(/(\[.*?\]\(https?:\/\/.*?\))/g);
+    return (
+      <div className="space-y-2">
+        {parts.map((part, i) => {
+          const match = part.match(/\[(.*?)\]\((https?:\/\/.*?)\)/);
+          if (match) {
+            return (
+              <a 
+                key={i} 
+                href={match[2]} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-1 bg-red-500/20 text-red-400 rounded-full hover:bg-red-500/30 transition-colors my-1 border border-red-500/30 font-medium"
+              >
+                <Youtube size={14} />
+                {match[1]}
+              </a>
+            );
+          }
+          return <span key={i} className="whitespace-pre-wrap">{part}</span>;
+        })}
+      </div>
+    );
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-[#0a0a0a]">
@@ -323,13 +374,13 @@ export default function NutriCoachWeb() {
                 {/* Quick Actions */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {[
-                    { title: "Daily Meal Plan", icon: Calendar, color: "text-primary", cmd: "Generate a daily meal plan for me." },
-                    { title: "Weekly Schedule", icon: Clock, color: "text-accent", cmd: "Generate a detailed weekly Indian meal plan." },
-                    { title: "Specific Recipe", icon: Utensils, color: "text-orange-400", cmd: "Give me a healthy recipe for lunch." },
+                    { title: "Daily Meal Plan", icon: Calendar, color: "text-primary", type: "daily" },
+                    { title: "Weekly Schedule", icon: Clock, color: "text-accent", type: "weekly" },
+                    { title: "Specific Recipe", icon: Utensils, color: "text-orange-400", type: "specific" },
                   ].map((action, i) => (
                     <button
                       key={i}
-                      onClick={() => handleSend(action.cmd)}
+                      onClick={() => { setPlanType(action.type); setIsConfiguringPlan(true); }}
                       className="glass p-6 rounded-2xl hover:bg-white/5 transition-all text-left border border-white/10 group group"
                     >
                       <action.icon className={`${action.color} mb-3 group-hover:scale-110 transition-transform`} />
@@ -340,7 +391,42 @@ export default function NutriCoachWeb() {
                 </div>
 
                 {/* Chat Interface */}
-                <div className="glass rounded-3xl flex flex-col h-[600px] overflow-hidden">
+                <div className="glass rounded-3xl flex flex-col h-[600px] overflow-hidden relative">
+                  {isConfiguringPlan && (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="absolute inset-0 z-20 bg-[#0a0a0a]/95 flex items-center justify-center p-6"
+                    >
+                      <div className="max-w-md w-full space-y-6">
+                        <div className="text-center space-y-2">
+                          <h3 className="text-2xl font-bold text-primary capitalize">{planType} Planner</h3>
+                          <p className="text-gray-400">What ingredients do you have? (Optional)</p>
+                        </div>
+                        <textarea
+                          value={ingredients}
+                          onChange={e => setIngredients(e.target.value)}
+                          placeholder="e.g. Tomato, Paneer, Spinach..."
+                          className="w-full h-32 bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-primary/50 text-white"
+                        />
+                        <div className="flex gap-4">
+                          <button 
+                            onClick={() => { setActiveType("bill"); fileInputRef.current?.click(); }}
+                            className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold flex items-center justify-center gap-2"
+                          >
+                            <ImageIcon className="w-4 h-4" /> Scan Bill
+                          </button>
+                          <button 
+                            onClick={generateMealPlanFromConfig}
+                            className="flex-1 py-4 bg-primary text-black rounded-2xl font-bold"
+                          >
+                            Generate
+                          </button>
+                        </div>
+                        <button onClick={() => setIsConfiguringPlan(false)} className="w-full text-gray-500 hover:text-white transition">Cancel</button>
+                      </div>
+                    </motion.div>
+                  )}
                   <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
                     {messages.map((m, i) => (
                       <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -348,8 +434,8 @@ export default function NutriCoachWeb() {
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${m.role === "user" ? "bg-accent/20 border border-accent/30" : "bg-primary/20 border border-primary/30"}`}>
                             {m.role === "user" ? <User className="w-4 h-4 text-accent" /> : <Bot className="w-4 h-4 text-primary" />}
                           </div>
-                          <div className={`p-4 rounded-2xl whitespace-pre-wrap ${m.role === "user" ? "bg-accent/10 text-white" : "bg-white/5 text-gray-200"}`}>
-                            {m.content}
+                          <div className={`p-4 rounded-2xl ${m.role === "user" ? "bg-accent/10 text-white" : "bg-white/5 text-gray-200"}`}>
+                            {m.role === "assistant" ? <FormattedMessage content={m.content} /> : <p className="whitespace-pre-wrap">{m.content}</p>}
                           </div>
                         </div>
                       </div>
@@ -520,7 +606,7 @@ export default function NutriCoachWeb() {
         </div>
       </main>
 
-      <input type="file" ref={fileInputRef} onChange={handleFileUpload} hidden />
+      <input type="file" id="bill-scan-input" ref={fileInputRef} onChange={handleFileUpload} hidden />
     </div>
   );
 }
