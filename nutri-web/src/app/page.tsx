@@ -342,9 +342,12 @@ export default function NutriCoachWeb() {
     <div className="flex h-screen bg-[#0a0a0a] text-white overflow-hidden">
       {/* Sidebar */}
       <aside className="w-20 md:w-64 glass border-r border-white/10 flex flex-col p-4 md:p-6 transition-all">
-        <div className="flex items-center gap-3 mb-10 px-2">
-          <Leaf className="text-primary w-8 h-8 shrink-0" />
-          <h1 className="text-xl font-bold gradient-text hidden md:block">NutriCoach</h1>
+        <div className="flex items-center gap-3 mb-10 px-2 flex-col items-start">
+          <div className="flex items-center gap-3">
+            <Leaf className="text-primary w-8 h-8 shrink-0" />
+            <h1 className="text-xl font-bold gradient-text hidden md:block">NutriCoach</h1>
+          </div>
+          <span className="text-[10px] text-gray-500 font-mono mt-1 hidden md:block uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded">v2.1 Stable</span>
         </div>
 
         <nav className="flex-1 space-y-2">
@@ -637,18 +640,21 @@ export default function NutriCoachWeb() {
                   </div>
                 </div>
 
-                <div className="glass p-8 rounded-3xl space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-bold flex items-center gap-2 text-xl italic text-accent"><FileText className="w-5 h-5" /> Medical Insights</h4>
+                <div className="glass p-8 rounded-3xl space-y-6 border-accent/20 border-2">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <h4 className="font-bold flex items-center gap-2 text-2xl italic text-accent"><FileText className="w-6 h-6" /> Medical Insights</h4>
+                      <p className="text-xs text-gray-500">Analysis of your latest health reports</p>
+                    </div>
                     <button 
                       onClick={() => { setActiveType("report"); fileInputRef.current?.click(); }}
-                      className="px-6 py-2 bg-accent/20 text-accent border border-accent/30 rounded-xl font-bold hover:bg-accent/30 transition flex items-center gap-2 text-sm"
+                      className="w-full md:w-auto px-8 py-4 bg-accent text-black rounded-2xl font-bold hover:bg-accent/90 transition shadow-lg shadow-accent/20 flex items-center justify-center gap-2"
                     >
-                      <ImageIcon className="w-4 h-4" /> Upload Report
+                      <ImageIcon className="w-5 h-5" /> Upload Now
                     </button>
                   </div>
-                  <div className="p-6 bg-accent/5 rounded-2xl border border-accent/20 min-h-[100px] text-gray-300 italic text-sm leading-relaxed">
-                    {user.health_advisor || "No health reports analyzed yet. Please upload your blood test or medical report to get personalized AI insights."}
+                  <div className="p-6 bg-accent/5 rounded-2xl border border-accent/20 min-h-[120px] text-gray-300 italic text-sm leading-relaxed backdrop-blur-sm">
+                    {user.health_advisor || "No health reports analyzed yet. Please upload your medical report to get personalized AI insights."}
                   </div>
                 </div>
               </motion.div>
