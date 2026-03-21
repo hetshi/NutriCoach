@@ -350,7 +350,7 @@ export default function NutriCoachWeb() {
             <Leaf className="text-primary w-8 h-8 shrink-0" />
             <h1 className="text-xl font-bold gradient-text hidden md:block">NutriCoach</h1>
           </div>
-          <span className="text-[10px] text-gray-500 font-mono mt-1 hidden md:block uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded">v2.1 Stable</span>
+          <span className="text-[10px] text-primary/70 font-mono mt-1 hidden md:block uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded border border-primary/20 animate-pulse">v2.2 (PDF Enabled)</span>
         </div>
 
         <nav className="flex-1 space-y-2">
