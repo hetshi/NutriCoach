@@ -16,13 +16,12 @@ export async function POST(req: Request) {
         const formData = await req.formData();
         const headersList = req.headers;
         const clientKey = headersList.get("x-api-key");
-        const hardcodedKey = "gsk_BTNkhS7oz5zzagsUOCI8WGdyb3FYEqRw9R1YYL8QZKErTv4Hje5cos";
 
         const groq = new Groq({
-            apiKey: clientKey || process.env.GROQ_API_KEY || hardcodedKey,
+            apiKey: clientKey || process.env.GROQ_API_KEY,
         });
         const file = formData.get("file") as File;
-        const type = formData.get("type"); // 'bill' or 'report'
+        const type = formData.get("type") as string; // 'bill' or 'report'
 
         if (!file) {
             return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
@@ -65,7 +64,11 @@ export async function POST(req: Request) {
             }
         }
 
-        const prompt = "Read all text from this image very carefully. Capture every item name, quantity, and health value you see. Return only the extracted text information.";
+        const isReport = type === "report";
+        const prompt = isReport 
+            ? "Analyze this medical report image. Extract patient name, test dates, and specifically point out abnormal values (high/low) and their significance. Summarize in plain English."
+            : "Read all text from this grocery bill/receipt very carefully. Capture every item name, quantity, and health value you see. List only the extracted items.";
+
         const response = await groq.chat.completions.create({
             messages: [
                 {
@@ -81,7 +84,7 @@ export async function POST(req: Request) {
                     ],
                 },
             ],
-            model: "llama-3.2-11b-vision-preview",
+            model: "llama-3.2-90b-vision-preview",
         });
 
         const rawContent = response.choices[0]?.message?.content || "";

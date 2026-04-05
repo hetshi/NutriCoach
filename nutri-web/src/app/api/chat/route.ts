@@ -6,10 +6,9 @@ export async function POST(req: Request) {
     const { messages, user } = await req.json();
     const headersList = req.headers;
     const clientKey = headersList.get("x-api-key");
-    const hardcodedKey = "gsk_BTNkhS7oz5zzagsUOCI8WGdyb3FYEqRw9R1YYL8QZKErTv4Hje5cos";
 
     const groq = new Groq({
-      apiKey: clientKey || process.env.GROQ_API_KEY || hardcodedKey,
+      apiKey: clientKey || process.env.GROQ_API_KEY,
     });
 
     const systemPrompt = `You are NutriCoach, a high-end AI Indian Nutritionist. 
