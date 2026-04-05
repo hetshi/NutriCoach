@@ -91,9 +91,20 @@ export async function POST(req: Request) {
         });
         console.log("Groq Scan Response Received successfully.");
 
-        const rawContent = response.choices[0]?.message?.content || "";
+        const rawContent = response.choices[0]?.message?.content?.trim();
+        console.log("Raw AI Content Length:", rawContent?.length || 0);
+        console.log("Raw AI Content Start:", rawContent?.substring(0, 50));
+
+        if (!rawContent || rawContent.length < 2) {
+            console.error("AI returned empty content. Response object:", JSON.stringify(response.choices[0]));
+            return NextResponse.json({ 
+                content: "The AI saw the image but couldn't find any specific text (bills or reports). Please ensure the text is clear and the lighting is good.",
+                debug: "Empty content from AI"
+            });
+        }
+
         return NextResponse.json({
-            content: rawContent || "The AI could not read any text from this image. Please try a clearer or smaller photo."
+            content: rawContent
         });
     } catch (error: any) {
         console.error("Extraction Error:", error);

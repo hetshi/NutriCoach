@@ -236,7 +236,8 @@ export default function NutriCoachWeb() {
           }) : null);
         }
       } else {
-        alert("Scanner finished but no text was found. Try a closer, brighter photo of the items.");
+        console.warn("Scan successful but returned empty data:", data);
+        alert(`AI scanned the image but didn't return any readable text. (Reason: ${data.debug || "No text detected"})\n\nDetails: ${data.content || "Try a closer, brighter photo."}`);
       }
     } catch (error: any) {
       console.error("Scan error details:", error);
