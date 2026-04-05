@@ -1,6 +1,15 @@
 import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
-const pdf = require("pdf-parse"); // Using require to avoid potential TS import issues/type mismatches
+
+export const dynamic = "force-dynamic";
+
+// Polyfill DOMMatrix for PDF parsing in Node environment during build/runtime
+if (typeof global !== "undefined" && typeof (global as any).DOMMatrix === "undefined") {
+    (global as any).DOMMatrix = class DOMMatrix {
+        constructor() {}
+    };
+}
+// const pdf = require("pdf-parse"); // Using require to avoid potential TS import issues/type mismatches
 
 export async function POST(req: Request) {
     try {
@@ -26,6 +35,8 @@ export async function POST(req: Request) {
 
         if (fileType === "application/pdf") {
             try {
+                // lazy load pdf-parse to avoid build errors
+                const pdf = require("pdf-parse");
                 const pdfData = await pdf(buffer);
                 const textContent = pdfData.text;
 
