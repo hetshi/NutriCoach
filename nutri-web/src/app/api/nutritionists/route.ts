@@ -11,29 +11,20 @@ export async function POST(req: Request) {
         });
 
         const prompt = `
-    You are a specialized local health assistant for India.
-    Task: Identify 4-5 REAL, highly-rated, and currently active NUTRITIONISTS or DIETITIANS strictly in "${city}".
+    You are a specialized local health directory assistant for India.
+    Task: Identify 4-5 REAL, highly-rated, and currently active NUTRITIONISTS or DIETITIANS strictly categorized in "${city}".
     
-    STRICT LOCALITY ENFORCEMENT:
-    - If the user provides a specific neighborhood/suburb (e.g., Andheri, Bandra, Powai), you MUST only suggest experts located WITHIN that specific neighborhood. 
-    - DO NOT suggest experts from other nearby areas if it violates the "strictly in ${city}" rule.
-    - Focus on professionals who have a physical clinic or verifiable practice in "${city}".
-
-    STRICT FILTERING RULES:
-    1. ONLY suggest dedicated Nutritionists or Dietitians.
-    2. DO NOT suggest general doctors or multi-specialty hospitals unless they have a very prominent nutrition department.
-    3. EXCLUDE gyms or general fitness centers.
+    STRICT PRECISION RULES:
+    1. EXCLUSIVITY: Only suggest Nutritionists/Dietitians with their own clinic or specialized practice. 
+    2. LOCATION: You must provide a specific street address or building name (e.g., "123, MG Road, Above HDFC Bank"). Do not provide just the neighborhood name.
+    3. SOCIAL PROOF: You MUST find and provide their real Instagram handle (e.g., @nutritionist_name). If you cannot find one, search for another expert who has one.
+    4. NO GENERALISTS: Do not suggest general practitioners or hospitals.
     
-    For each, provide:
-    1. Full Name (Dr. name or Clinic name)
-    2. Specialist Type (e.g., Clinical Dietitian, Sports Nutritionist)
-    3. Precise Neighborhood/Street in ${city}
-    4. Notable Achievement (e.g., "Active on Instagram", "Expert in PCOD").
+    Format each result EXACTLY as shown below (no intro/outro):
+    [FULL NAME] | [SPECIALITY] | [FULL STREET ADDRESS] | [INSTAGRAM HANDLE]
     
-    Format each result exactly:
-    - [NAME] | [SPECIALITY] | [PRECISE AREA] | [NOTABLE]
-    
-    ONLY return the list. No introduction or closing text.
+    Example:
+    Dr. Anjali Mukerjee | Clinical Nutritionist | Health Total, Linking Road, Santacruz West | @anjalimukerjee
     `;
 
         const response = await groq.chat.completions.create({

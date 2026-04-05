@@ -22,8 +22,10 @@ export async function POST(req: Request) {
         });
         const file = formData.get("file") as File;
         const type = formData.get("type") as string; // 'bill' or 'report'
+        console.log("Scan Request Received. Type:", type, "File Name:", file?.name, "File Type:", file?.type);
 
         if (!file) {
+            console.error("Scan Error: No file uploaded");
             return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
         }
 
@@ -69,6 +71,7 @@ export async function POST(req: Request) {
             ? "Analyze this medical report image. Extract patient name, test dates, and specifically point out abnormal values (high/low) and their significance. Summarize in plain English."
             : "Read all text from this grocery bill/receipt very carefully. Capture every item name, quantity, and health value you see. List only the extracted items.";
 
+        console.log("Sending to Groq Llama 4 Scout Vision model...");
         const response = await groq.chat.completions.create({
             messages: [
                 {
@@ -84,8 +87,9 @@ export async function POST(req: Request) {
                     ],
                 },
             ],
-            model: "llama-3.2-90b-vision-preview",
+            model: "meta-llama/llama-4-scout-17b-16e-instruct",
         });
+        console.log("Groq Scan Response Received successfully.");
 
         const rawContent = response.choices[0]?.message?.content || "";
         return NextResponse.json({
