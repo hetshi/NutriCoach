@@ -43,7 +43,9 @@ export async function POST(req: Request) {
 
                 if (!textContent || textContent.trim().length < 50) {
                     return NextResponse.json({ 
-                        content: "This PDF appears to be a scanned image or has very little text. For best results, please upload a clear PHOTO or SCREENSHOT of the report instead, or ensure the PDF is text-searchable." 
+                        success: false,
+                        scan_text: "This PDF appears to be a scanned image or has very little text. For best results, please upload a clear PHOTO or SCREENSHOT of the report instead.",
+                        debug_info: "PDF_TEXT_TOO_SHORT"
                     });
                 }
 
@@ -58,7 +60,9 @@ export async function POST(req: Request) {
                 });
 
                 return NextResponse.json({
-                    content: response.choices[0]?.message?.content || "Could not analyze the PDF text."
+                    success: true,
+                    scan_text: response.choices[0]?.message?.content || "The AI could not analyze the PDF text.",
+                    debug_info: "PDF_SUCCESS"
                 });
             } catch (pdfErr: any) {
                 console.error("PDF Parsing error:", pdfErr);
