@@ -36,8 +36,15 @@ export async function POST(req: Request) {
 
         if (fileType === "application/pdf") {
             try {
-                // lazy load pdf-parse to avoid build errors
-                const pdf = require("pdf-parse");
+                // modern fallback for pdf-parse module interop
+                let pdf = require("pdf-parse");
+                if (pdf.default) pdf = pdf.default;
+                
+                console.log("PDF Parser Loaded. Type:", typeof pdf);
+                if (typeof pdf !== "function") {
+                    throw new Error("Internal PDF Parser Error: Expected function but got " + typeof pdf);
+                }
+
                 const pdfData = await pdf(buffer);
                 const textContent = pdfData.text;
 

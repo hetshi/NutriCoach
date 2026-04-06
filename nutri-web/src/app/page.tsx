@@ -240,7 +240,8 @@ export default function NutriCoachWeb() {
       }
     } catch (error: any) {
       console.error("Scan error details:", error);
-      alert(`SCAN FAILURE: ${error.message || "The AI server could not read this image. Please ensure it's a clear photo under 4MB."}`);
+      const errorMessage = error.stack || error.message || "Unknown scan error";
+      alert(`SCAN FAILURE:\n${errorMessage.substring(0, 300)}`);
     } finally {
       setIsLoading(false);
       setIsScanningInModal(false);
