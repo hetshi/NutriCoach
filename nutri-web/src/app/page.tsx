@@ -206,8 +206,11 @@ export default function NutriCoachWeb() {
         headers: { "x-api-key": apiKey }
       });
       const data = await response.json();
-      console.log("Scan Result:", data);
-      
+      console.log("Scan Result Data:", data);
+
+      if (!response.ok) {
+        throw new Error(data.details || data.scan_text || data.error || "Server Error 500");
+      }
       if (data.success && data.scan_text) {
         if (activeType === "bill") {
           if (isConfiguringPlan) {

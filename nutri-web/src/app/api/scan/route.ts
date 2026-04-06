@@ -118,7 +118,8 @@ export async function POST(req: Request) {
         console.error("Extraction Error:", error);
         return NextResponse.json({ 
             success: false,
-            error: "Failed to scan file", 
+            scan_text: "SERVER ERROR: " + (error.message || "Unknown Failure"),
+            debug_info: "BACKEND_CATCH_ERROR",
             details: error.response?.data?.error?.message || error.message || "Unknown AI error"
         }, { status: 500 });
     }
