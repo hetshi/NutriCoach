@@ -317,6 +317,7 @@ export default function NutriCoachWeb() {
           animate={{ opacity: 1, scale: 1 }}
           className="glass p-8 rounded-3xl w-full max-w-md space-y-6"
         >
+          {/* Logo */}
           <div className="text-center space-y-2">
             <div className="bg-primary/20 p-4 rounded-2xl w-fit mx-auto border border-primary/30">
               <Leaf className="text-primary w-8 h-8" />
@@ -325,38 +326,117 @@ export default function NutriCoachWeb() {
             <p className="text-gray-400">Your Personal AI Indian Nutritionist</p>
           </div>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const data = Object.fromEntries(formData.entries()) as any;
-              setUser({ ...data, meal_history: [] });
-            }}
-            className="space-y-4"
-          >
-            <input name="name" placeholder="Full Name" required className="auth-input" />
-            <div className="grid grid-cols-2 gap-4">
-              <input name="age" type="number" placeholder="Age" required className="auth-input" />
-              <input name="height" type="number" placeholder="Height (cm)" required className="auth-input" />
-            </div>
-            <input name="weight" type="number" placeholder="Weight (kg)" required className="auth-input" />
-            <select name="diet_type" className="auth-input bg-transparent">
-              <option value="veg">Vegetarian</option>
-              <option value="non-veg">Non-Vegetarian</option>
-              <option value="jain">Jain</option>
-              <option value="vegan">Vegan</option>
-              <option value="diabetic">Diabetic Friendly</option>
-            </select>
-            <select name="goal" className="auth-input bg-transparent">
-              <option value="Maintain Weight">Maintain Weight</option>
-              <option value="Weight Loss">Weight Loss</option>
-              <option value="Muscle Gain">Muscle Gain</option>
-              <option value="Healthy Lifestyle">Healthy Lifestyle</option>
-            </select>
-            <button className="w-full py-4 bg-primary text-black font-bold rounded-2xl hover:bg-primary-hover transition-all mt-4">
-              Start Your Journey
+          {/* Tab Toggle */}
+          <div className="flex bg-white/5 rounded-2xl p-1 border border-white/10">
+            <button
+              onClick={() => { setAuthTab("login"); setLoginError(""); }}
+              className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all ${
+                authTab === "login" ? "bg-primary text-black" : "text-gray-400 hover:text-white"
+              }`}
+            >
+              Login
             </button>
-          </form>
+            <button
+              onClick={() => { setAuthTab("register"); setLoginError(""); }}
+              className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all ${
+                authTab === "register" ? "bg-primary text-black" : "text-gray-400 hover:text-white"
+              }`}
+            >
+              Register
+            </button>
+          </div>
+
+          <AnimatePresence mode="wait">
+            {/* LOGIN FORM */}
+            {authTab === "login" && (
+              <motion.form
+                key="login"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                onSubmit={handleLogin}
+                className="space-y-4"
+              >
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-400">Enter the name you registered with to restore your profile.</p>
+                </div>
+                <input
+                  value={loginName}
+                  onChange={e => setLoginName(e.target.value)}
+                  placeholder="Your Registered Name"
+                  required
+                  className="auth-input"
+                />
+                {loginError && (
+                  <p className="text-red-400 text-sm font-medium bg-red-500/10 p-3 rounded-xl border border-red-500/20">
+                    {loginError}
+                  </p>
+                )}
+                <button className="w-full py-4 bg-primary text-black font-bold rounded-2xl hover:bg-primary/90 transition-all">
+                  Login
+                </button>
+                <p className="text-center text-gray-500 text-sm">
+                  New here?{" "}
+                  <button type="button" onClick={() => setAuthTab("register")} className="text-primary underline">
+                    Create an account
+                  </button>
+                </p>
+              </motion.form>
+            )}
+
+            {/* REGISTER FORM */}
+            {authTab === "register" && (
+              <motion.form
+                key="register"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  const data = Object.fromEntries(formData.entries()) as any;
+                  const allUsers = JSON.parse(localStorage.getItem("nutricoach_all_users") || "{}");
+                  if (allUsers[data.name.trim().toLowerCase()]) {
+                    alert(`An account with the name "${data.name}" already exists. Please login instead.`);
+                    setAuthTab("login");
+                    setLoginName(data.name);
+                    return;
+                  }
+                  setUser({ ...data, meal_history: [] });
+                }}
+                className="space-y-4"
+              >
+                <input name="name" placeholder="Full Name" required className="auth-input" />
+                <div className="grid grid-cols-2 gap-4">
+                  <input name="age" type="number" placeholder="Age" required className="auth-input" />
+                  <input name="height" type="number" placeholder="Height (cm)" required className="auth-input" />
+                </div>
+                <input name="weight" type="number" placeholder="Weight (kg)" required className="auth-input" />
+                <select name="diet_type" className="auth-input bg-transparent">
+                  <option value="veg">Vegetarian</option>
+                  <option value="non-veg">Non-Vegetarian</option>
+                  <option value="jain">Jain</option>
+                  <option value="vegan">Vegan</option>
+                  <option value="diabetic">Diabetic Friendly</option>
+                </select>
+                <select name="goal" className="auth-input bg-transparent">
+                  <option value="Maintain Weight">Maintain Weight</option>
+                  <option value="Weight Loss">Weight Loss</option>
+                  <option value="Muscle Gain">Muscle Gain</option>
+                  <option value="Healthy Lifestyle">Healthy Lifestyle</option>
+                </select>
+                <button className="w-full py-4 bg-primary text-black font-bold rounded-2xl hover:bg-primary-hover transition-all">
+                  Start Your Journey
+                </button>
+                <p className="text-center text-gray-500 text-sm">
+                  Already have an account?{" "}
+                  <button type="button" onClick={() => setAuthTab("login")} className="text-primary underline">
+                    Login
+                  </button>
+                </p>
+              </motion.form>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         <style jsx>{`
@@ -411,7 +491,7 @@ export default function NutriCoachWeb() {
         </nav>
 
         <button
-          onClick={() => { localStorage.clear(); setUser(null); window.location.reload(); }}
+          onClick={handleLogout}
           className="w-full flex items-center gap-4 p-4 rounded-2xl text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-all mt-auto"
         >
           <LogOut className="w-5 h-5 shrink-0" />
