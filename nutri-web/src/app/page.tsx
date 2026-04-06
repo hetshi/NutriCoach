@@ -66,19 +66,53 @@ export default function NutriCoachWeb() {
   const [isScanningInModal, setIsScanningInModal] = useState(false);
   const [mealTime, setMealTime] = useState<"Breakfast" | "Lunch" | "Dinner">("Lunch");
 
+  const [authTab, setAuthTab] = useState<"login" | "register">("login");
+  const [loginName, setLoginName] = useState("");
+  const [loginError, setLoginError] = useState("");
+
   // Load settings from localStorage
   useEffect(() => {
-    const savedUser = localStorage.getItem("nutricoach_user");
+    const savedUser = localStorage.getItem("nutricoach_active_user");
     if (savedUser) setUser(JSON.parse(savedUser));
     const savedKey = localStorage.getItem("nutricoach_key");
     if (savedKey) setApiKey(savedKey);
   }, []);
 
-  // Save settings to localStorage
+  // Save active user session to localStorage
   useEffect(() => {
-    if (user) localStorage.setItem("nutricoach_user", JSON.stringify(user));
+    if (user) {
+      localStorage.setItem("nutricoach_active_user", JSON.stringify(user));
+      // Also persist in the multi-user store
+      const allUsers = JSON.parse(localStorage.getItem("nutricoach_all_users") || "{}");
+      allUsers[user.name.toLowerCase()] = user;
+      localStorage.setItem("nutricoach_all_users", JSON.stringify(allUsers));
+    }
     if (apiKey) localStorage.setItem("nutricoach_key", apiKey);
   }, [user, apiKey]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+    const allUsers = JSON.parse(localStorage.getItem("nutricoach_all_users") || "{}");
+    const found = allUsers[loginName.trim().toLowerCase()];
+    if (found) {
+      setUser(found);
+    } else {
+      setLoginError(`No account found for "${loginName}". Please register first.`);
+    }
+  };
+
+  const handleLogout = () => {
+    // Save current user data before clearing session
+    if (user) {
+      const allUsers = JSON.parse(localStorage.getItem("nutricoach_all_users") || "{}");
+      allUsers[user.name.toLowerCase()] = user;
+      localStorage.setItem("nutricoach_all_users", JSON.stringify(allUsers));
+    }
+    localStorage.removeItem("nutricoach_active_user");
+    setUser(null);
+    setMessages([]);
+  };
 
   // Auto-scroll logic
   useEffect(() => {
