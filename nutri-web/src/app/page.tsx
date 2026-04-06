@@ -194,6 +194,7 @@ export default function NutriCoachWeb() {
   const handleNutritionistSearch = async () => {
     if (!searchCity.trim()) return;
     setIsSearching(true);
+    setNutritionists([]);
     try {
       const response = await fetch("/api/nutritionists", {
         method: "POST",
@@ -206,10 +207,16 @@ export default function NutriCoachWeb() {
       const data = await response.json();
       if (data.content) {
         const lines = data.content.split("\n").filter((l: string) => l.includes("|"));
-        const parsed = lines.map((l: string) => {
-          const [name, specialty, area, notable] = l.split("|").map(s => s.trim().replace(/^[-*]\s*/, ""));
-          return { name, specialty, area, notable };
-        });
+        const parsed = lines
+          .map((l: string) => {
+            const [name, specialty, area, instagram] = l.split("|").map(s => s.trim().replace(/^[-*\d.]+\s*/, ""));
+            return { name, specialty, area, instagram };
+          })
+          .filter((n: any) => {
+            // Client-side safety filter: drop results whose address doesn't mention the searched city
+            if (!n.name || !n.area) return false;
+            return n.area.toLowerCase().includes(searchCity.toLowerCase());
+          });
         setNutritionists(parsed);
       }
     } catch (error) {
@@ -747,10 +754,19 @@ export default function NutriCoachWeb() {
                   ))}
                 </div>
 
+                {/* AI Disclaimer */}
+                {nutritionists.length > 0 && (
+                  <div className="flex items-start gap-3 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl text-yellow-400 text-xs">
+                    <span className="text-lg">⚠️</span>
+                    <p><strong>AI-generated results.</strong> Always verify the address on Google Maps before visiting. Results are filtered to show only listings mentioning <strong>{searchCity}</strong>.</p>
+                  </div>
+                )}
+
                 {nutritionists.length === 0 && !isSearching && (
                   <div className="text-center py-20 glass rounded-3xl border border-dashed border-white/10">
                     <MapPin className="w-12 h-12 text-gray-700 mx-auto mb-4" />
-                    <p className="text-gray-500 font-medium">Search for your city to find top-rated nutritionists near you.</p>
+                    <p className="text-gray-500 font-medium">Search for your city or locality to find nutritionists near you.</p>
+                    <p className="text-gray-600 text-xs mt-2">Try specific areas like "Vile Parle", "Koramangala", "CP Delhi"</p>
                   </div>
                 )}
 
@@ -762,16 +778,23 @@ export default function NutriCoachWeb() {
                       <div className="flex items-center gap-2 text-xs mt-4 text-gray-300">
                         <MapPin className="w-3 h-3 text-red-500" /> {n.area}
                       </div>
-                      <p className="text-sm mt-4 text-gray-400">{n.notable}</p>
+                      {n.instagram && n.instagram !== "N/A" && (
+                        <p className="text-xs mt-2 text-pink-400 font-mono">{n.instagram}</p>
+                      )}
                       <div className="flex gap-3 mt-6">
                         <button
-                          onClick={() => window.open(`https://www.google.com/maps/search/${n.name.replace(/\s+/g, "+")}+${n.area.replace(/\s+/g, "+")}`, "_blank")}
+                          onClick={() => window.open(`https://www.google.com/maps/search/${encodeURIComponent(n.name + " nutritionist " + n.area)}`, "_blank")}
                           className="flex-1 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold border border-white/10"
                         >
-                          View Map
+                          📍 Verify on Maps
                         </button>
                         <button
-                          onClick={() => window.open(`https://www.google.com/search?q=${n.name.replace(/\s+/g, "+")}+nutritionist+instagram`, "_blank")}
+                          onClick={() => {
+                            const handle = n.instagram && n.instagram !== "N/A" && n.instagram.startsWith("@")
+                              ? `https://instagram.com/${n.instagram.replace("@", "")}`
+                              : `https://www.instagram.com/explore/tags/${n.name.replace(/\s+/g, "").toLowerCase()}/`;
+                            window.open(handle, "_blank");
+                          }}
                           className="flex-1 py-3 bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 rounded-xl text-xs font-bold border border-pink-500/20"
                         >
                           Instagram

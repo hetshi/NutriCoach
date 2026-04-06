@@ -10,30 +10,33 @@ export async function POST(req: Request) {
             apiKey: clientKey || process.env.GROQ_API_KEY,
         });
 
-        const prompt = `
-    You are a specialized local health directory assistant for India.
-    Task: Identify 4-5 REAL, highly-rated, and currently active NUTRITIONISTS or DIETITIANS strictly categorized in "${city}".
-    
-    STRICT PRECISION RULES:
-    1. EXCLUSIVITY: Only suggest Nutritionists/Dietitians with their own clinic or specialized practice. 
-    2. LOCATION: You must provide a specific street address or building name (e.g., "123, MG Road, Above HDFC Bank"). Do not provide just the neighborhood name.
-    3. SOCIAL PROOF: You MUST find and provide their real Instagram handle (e.g., @nutritionist_name). If you cannot find one, search for another expert who has one.
-    4. NO GENERALISTS: Do not suggest general practitioners or hospitals.
-    
-    Format each result EXACTLY as shown below (no intro/outro):
-    [FULL NAME] | [SPECIALITY] | [FULL STREET ADDRESS] | [INSTAGRAM HANDLE]
-    
-    Example:
-    Dr. Anjali Mukerjee | Clinical Nutritionist | Health Total, Linking Road, Santacruz West | @anjalimukerjee
-    `;
+        const prompt = `You are a local health directory for India. List 4-5 REAL nutritionists/dietitians whose clinic is PHYSICALLY LOCATED IN "${city}", India.
+
+ABSOLUTE RULES — NEVER BREAK THESE:
+1. Every result MUST have their clinic physically inside "${city}". The word "${city}" MUST appear in the address field.
+2. If you are not 100% sure a practitioner's office is in "${city}", DO NOT include them. Accuracy over quantity.
+3. Do NOT include doctors whose clinic is in a different city (e.g., if asked for Vile Parle, don't include doctors from Delhi, Pune, etc.)
+4. Include ONLY nutritionists/dietitians — not general physicians, homeopaths, or hospitals.
+5. The address must be a real, specific street address with locality in ${city}.
+
+FORMAT — output ONLY these lines, no other text:
+Name | Specialty | Full Address in ${city} | Instagram handle or "N/A"
+
+Example for "Vile Parle":
+Dr. Pooja Shah | Sports Nutritionist | 12, Nehru Road, Vile Parle East, Mumbai | @drpoojashah_nutrition
+
+Now list 4-5 real nutritionists physically based in ${city}:`;
 
         const response = await groq.chat.completions.create({
             messages: [{ role: "user", content: prompt }],
             model: "llama-3.3-70b-versatile",
+            temperature: 0.1,
+            max_tokens: 600,
         });
 
         return NextResponse.json({
-            content: response.choices[0]?.message?.content || ""
+            content: response.choices[0]?.message?.content || "",
+            city: city
         });
     } catch (error: any) {
         return NextResponse.json({ error: "Failed to search" }, { status: 500 });
