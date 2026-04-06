@@ -208,36 +208,32 @@ export default function NutriCoachWeb() {
       const data = await response.json();
       console.log("Scan Result:", data);
       
-      if (data.content) {
+      if (data.success && data.scan_text) {
         if (activeType === "bill") {
           if (isConfiguringPlan) {
-            // Force ingredients update
-            const result = data.content.trim();
-            setIngredients(prev => {
-              const joined = prev ? `${prev}, ${result}` : result;
-              return joined;
-            });
+            const result = data.scan_text.trim();
+            setIngredients(prev => prev ? `${prev}, ${result}` : result);
           } else {
-            const scanPrompt = `I have these ingredients: ${data.content}. Suggest a healthy Indian meal.`;
+            const scanPrompt = `I have these ingredients: ${data.scan_text}. Suggest a healthy Indian meal.`;
             setInput(scanPrompt);
             setTimeout(() => handleSend(scanPrompt), 100);
           }
         } else {
-          setMessages(prev => [...prev, { role: "assistant", content: `Medical Analysis: ${data.content}` }]);
+          setMessages(prev => [...prev, { role: "assistant", content: `Medical Analysis: ${data.scan_text}` }]);
           const reportItem = {
             type: "Medical Report",
-            content: data.content,
+            content: data.scan_text,
             timestamp: new Date().toLocaleString()
           };
           setUser(prev => prev ? ({ 
             ...prev, 
-            health_advisor: data.content,
+            health_advisor: data.scan_text,
             meal_history: [reportItem, ...(prev.meal_history || [])]
           }) : null);
         }
       } else {
-        console.warn("Scan successful but returned empty data:", data);
-        alert(`AI scanned the image but didn't return any readable text. (Reason: ${data.debug || "No text detected"})\n\nDetails: ${data.content || "Try a closer, brighter photo."}`);
+        console.error("Scanner failed to extract valid text:", data);
+        alert(`SCAN ERROR\nReason: ${data.debug_info || "No text detected"}\n\nAI Message: ${data.scan_text || "The AI could not read this image accurately. Try a closer, brighter photo."}`);
       }
     } catch (error: any) {
       console.error("Scan error details:", error);

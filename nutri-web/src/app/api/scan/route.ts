@@ -90,25 +90,30 @@ export async function POST(req: Request) {
             model: "meta-llama/llama-4-scout-17b-16e-instruct",
         });
         console.log("Groq Scan Response Received successfully.");
+        console.log("Full Message Data:", JSON.stringify(response.choices[0].message));
 
-        const rawContent = response.choices[0]?.message?.content?.trim();
-        console.log("Raw AI Content Length:", rawContent?.length || 0);
-        console.log("Raw AI Content Start:", rawContent?.substring(0, 50));
+        const rawContent = (response.choices[0]?.message?.content || "").trim();
+        console.log("Processed Content Length:", rawContent.length);
 
-        if (!rawContent || rawContent.length < 2) {
-            console.error("AI returned empty content. Response object:", JSON.stringify(response.choices[0]));
+        if (rawContent.length < 10) {
+            console.warn("AI response too short, returning diagnostic.");
             return NextResponse.json({ 
-                content: "The AI saw the image but couldn't find any specific text (bills or reports). Please ensure the text is clear and the lighting is good.",
-                debug: "Empty content from AI"
+                success: false,
+                scan_text: "The AI saw the photo but couldn't extract enough readable information. (Code: AI_EMPTY)",
+                debug_info: "AI_CONTENT_SHORT",
+                original_response: rawContent
             });
         }
 
         return NextResponse.json({
-            content: rawContent
+            success: true,
+            scan_text: rawContent,
+            debug_info: "SUCCESS"
         });
     } catch (error: any) {
         console.error("Extraction Error:", error);
         return NextResponse.json({ 
+            success: false,
             error: "Failed to scan file", 
             details: error.response?.data?.error?.message || error.message || "Unknown AI error"
         }, { status: 500 });
