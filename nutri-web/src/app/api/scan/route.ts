@@ -37,12 +37,12 @@ export async function POST(req: Request) {
         if (fileType === "application/pdf") {
             try {
                 // modern fallback for pdf-parse module interop
-                let pdf = require("pdf-parse");
-                if (pdf.default) pdf = pdf.default;
+                let pdfModule = require("pdf-parse");
+                let pdf = pdfModule.PDFParse || pdfModule.default || (typeof pdfModule === "function" ? pdfModule : null);
                 
-                console.log("PDF Parser Loaded. Type:", typeof pdf);
+                console.log("PDF Parser Loaded. Keys:", Object.keys(pdfModule), "Type:", typeof pdf);
                 if (typeof pdf !== "function") {
-                    throw new Error("Internal PDF Parser Error: Expected function but got " + typeof pdf);
+                    throw new Error("Internal PDF Parser Error: Expected function but got " + typeof pdf + ". Keys: " + Object.keys(pdfModule).join(","));
                 }
 
                 const pdfData = await pdf(buffer);
