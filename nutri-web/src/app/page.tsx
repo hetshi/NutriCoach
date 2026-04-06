@@ -33,6 +33,7 @@ interface Message {
 interface UserProfile {
   name: string;
   username: string;
+  password: string;
   age: string;
   height: string;
   weight: string;
@@ -67,8 +68,12 @@ export default function NutriCoachWeb() {
   const [mealTime, setMealTime] = useState<"Breakfast" | "Lunch" | "Dinner">("Lunch");
 
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
-  const [loginName, setLoginName] = useState("");
+  const [loginUsername, setLoginUsername] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [showLoginPass, setShowLoginPass] = useState(false);
+  const [showRegPass, setShowRegPass] = useState(false);
+  const [showRegConfirm, setShowRegConfirm] = useState(false);
 
   // Load settings from localStorage
   useEffect(() => {
@@ -82,9 +87,9 @@ export default function NutriCoachWeb() {
   useEffect(() => {
     if (user) {
       localStorage.setItem("nutricoach_active_user", JSON.stringify(user));
-      // Also persist in the multi-user store
+      // Also persist in the multi-user store keyed by username
       const allUsers = JSON.parse(localStorage.getItem("nutricoach_all_users") || "{}");
-      allUsers[user.name.toLowerCase()] = user;
+      allUsers[user.username.toLowerCase()] = user;
       localStorage.setItem("nutricoach_all_users", JSON.stringify(allUsers));
     }
     if (apiKey) localStorage.setItem("nutricoach_key", apiKey);
@@ -94,24 +99,30 @@ export default function NutriCoachWeb() {
     e.preventDefault();
     setLoginError("");
     const allUsers = JSON.parse(localStorage.getItem("nutricoach_all_users") || "{}");
-    const found = allUsers[loginName.trim().toLowerCase()];
-    if (found) {
-      setUser(found);
-    } else {
-      setLoginError(`No account found for "${loginName}". Please register first.`);
+    const found = allUsers[loginUsername.trim().toLowerCase()];
+    if (!found) {
+      setLoginError(`No account found for "${loginUsername}". Please register first.`);
+      return;
     }
+    if (found.password !== btoa(loginPassword)) {
+      setLoginError("Incorrect password. Please try again.");
+      return;
+    }
+    setUser(found);
   };
 
   const handleLogout = () => {
     // Save current user data before clearing session
     if (user) {
       const allUsers = JSON.parse(localStorage.getItem("nutricoach_all_users") || "{}");
-      allUsers[user.name.toLowerCase()] = user;
+      allUsers[user.username.toLowerCase()] = user;
       localStorage.setItem("nutricoach_all_users", JSON.stringify(allUsers));
     }
     localStorage.removeItem("nutricoach_active_user");
     setUser(null);
     setMessages([]);
+    setLoginUsername("");
+    setLoginPassword("");
   };
 
   // Auto-scroll logic
@@ -357,19 +368,35 @@ export default function NutriCoachWeb() {
                 onSubmit={handleLogin}
                 className="space-y-4"
               >
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-400">Enter the name you registered with to restore your profile.</p>
-                </div>
                 <input
-                  value={loginName}
-                  onChange={e => setLoginName(e.target.value)}
-                  placeholder="Your Registered Name"
+                  value={loginUsername}
+                  onChange={e => setLoginUsername(e.target.value)}
+                  placeholder="Username"
                   required
+                  autoComplete="username"
                   className="auth-input"
                 />
+                <div className="relative">
+                  <input
+                    value={loginPassword}
+                    onChange={e => setLoginPassword(e.target.value)}
+                    type={showLoginPass ? "text" : "password"}
+                    placeholder="Password"
+                    required
+                    autoComplete="current-password"
+                    className="auth-input pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPass(p => !p)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary text-xs font-bold"
+                  >
+                    {showLoginPass ? "HIDE" : "SHOW"}
+                  </button>
+                </div>
                 {loginError && (
                   <p className="text-red-400 text-sm font-medium bg-red-500/10 p-3 rounded-xl border border-red-500/20">
-                    {loginError}
+                    ⚠️ {loginError}
                   </p>
                 )}
                 <button className="w-full py-4 bg-primary text-black font-bold rounded-2xl hover:bg-primary/90 transition-all">
@@ -377,7 +404,7 @@ export default function NutriCoachWeb() {
                 </button>
                 <p className="text-center text-gray-500 text-sm">
                   New here?{" "}
-                  <button type="button" onClick={() => setAuthTab("register")} className="text-primary underline">
+                  <button type="button" onClick={() => { setAuthTab("register"); setLoginError(""); }} className="text-primary underline">
                     Create an account
                   </button>
                 </p>
@@ -395,18 +422,28 @@ export default function NutriCoachWeb() {
                   e.preventDefault();
                   const formData = new FormData(e.currentTarget);
                   const data = Object.fromEntries(formData.entries()) as any;
-                  const allUsers = JSON.parse(localStorage.getItem("nutricoach_all_users") || "{}");
-                  if (allUsers[data.name.trim().toLowerCase()]) {
-                    alert(`An account with the name "${data.name}" already exists. Please login instead.`);
-                    setAuthTab("login");
-                    setLoginName(data.name);
+                  if (data.password !== data.confirm_password) {
+                    alert("Passwords do not match. Please try again.");
                     return;
                   }
-                  setUser({ ...data, meal_history: [] });
+                  if (data.password.length < 6) {
+                    alert("Password must be at least 6 characters.");
+                    return;
+                  }
+                  const allUsers = JSON.parse(localStorage.getItem("nutricoach_all_users") || "{}");
+                  if (allUsers[data.username.trim().toLowerCase()]) {
+                    alert(`Username "${data.username}" is already taken. Please choose another or login.`);
+                    setAuthTab("login");
+                    setLoginUsername(data.username);
+                    return;
+                  }
+                  const { confirm_password, ...rest } = data;
+                  setUser({ ...rest, username: rest.username.trim().toLowerCase(), password: btoa(rest.password), meal_history: [] });
                 }}
                 className="space-y-4"
               >
                 <input name="name" placeholder="Full Name" required className="auth-input" />
+                <input name="username" placeholder="Choose a Username" required className="auth-input" autoComplete="username" />
                 <div className="grid grid-cols-2 gap-4">
                   <input name="age" type="number" placeholder="Age" required className="auth-input" />
                   <input name="height" type="number" placeholder="Height (cm)" required className="auth-input" />
@@ -425,12 +462,38 @@ export default function NutriCoachWeb() {
                   <option value="Muscle Gain">Muscle Gain</option>
                   <option value="Healthy Lifestyle">Healthy Lifestyle</option>
                 </select>
+                <div className="relative">
+                  <input
+                    name="password"
+                    type={showRegPass ? "text" : "password"}
+                    placeholder="Create Password (min 6 chars)"
+                    required
+                    autoComplete="new-password"
+                    className="auth-input pr-12"
+                  />
+                  <button type="button" onClick={() => setShowRegPass(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary text-xs font-bold">
+                    {showRegPass ? "HIDE" : "SHOW"}
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    name="confirm_password"
+                    type={showRegConfirm ? "text" : "password"}
+                    placeholder="Confirm Password"
+                    required
+                    autoComplete="new-password"
+                    className="auth-input pr-12"
+                  />
+                  <button type="button" onClick={() => setShowRegConfirm(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary text-xs font-bold">
+                    {showRegConfirm ? "HIDE" : "SHOW"}
+                  </button>
+                </div>
                 <button className="w-full py-4 bg-primary text-black font-bold rounded-2xl hover:bg-primary-hover transition-all">
                   Start Your Journey
                 </button>
                 <p className="text-center text-gray-500 text-sm">
                   Already have an account?{" "}
-                  <button type="button" onClick={() => setAuthTab("login")} className="text-primary underline">
+                  <button type="button" onClick={() => { setAuthTab("login"); setLoginError(""); }} className="text-primary underline">
                     Login
                   </button>
                 </p>
