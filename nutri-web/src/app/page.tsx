@@ -235,7 +235,10 @@ export default function NutriCoachWeb() {
   const generateMealPlanFromConfig = () => {
     if (!planType) return;
     const healthContext = user?.health_advisor ? `IMPORTANT: User has these medical insights: ${user.health_advisor}. ACT ACCORDINGLY by avoiding restricted foods or prioritizing needed nutrients.` : "";
-    const prompt = `I am using my Ingredient Book. ${healthContext} Plan type: ${planType}. ${planType === "specific" ? `Specifically for ${mealTime}. ` : ""}${ingredients ? `Ingredients available: ${ingredients}.` : "Suggest healthy recipes."} Please provide the plan with clickable YouTube recipe links using the format [Watch Recipe](URL).`;
+    const dietReminder = user?.diet_type === "jain" ? "CRITICAL: The user is JAIN. You MUST NOT include Onion, Garlic, Potato, Ginger, Carrot, or any Root Vegetables. " : "";
+    const breakfastReminder = "IMPORTANT: Suggest a substantial Indian breakfast (Poha, Chilla, Upma, etc.). NO 'only curd' or 'only fruit' meals. ";
+    
+    const prompt = `${dietReminder}${breakfastReminder}I am using my Ingredient Book. ${healthContext} Plan type: ${planType}. ${planType === "specific" ? `Specifically for ${mealTime}. ` : ""}${ingredients ? `Ingredients available: ${ingredients}.` : "Suggest healthy recipes."} Please provide the plan with clickable YouTube recipe links using the format [Watch Recipe](URL).`;
     
     setIsConfiguringPlan(false);
     handleSend(prompt);
