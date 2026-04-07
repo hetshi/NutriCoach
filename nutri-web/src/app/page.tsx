@@ -21,7 +21,11 @@ import {
   Utensils,
   PlusCircle,
   Clock,
-  Youtube
+  Youtube,
+  Activity,
+  TrendingUp,
+  TrendingDown,
+  Minus
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -49,7 +53,7 @@ interface UserProfile {
 
 export default function NutriCoachWeb() {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "history" | "nutritionists" | "account">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "history" | "nutritionists" | "account" | "bmi">("dashboard");
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -67,6 +71,49 @@ export default function NutriCoachWeb() {
   const [isScanningInModal, setIsScanningInModal] = useState(false);
   const [mealTime, setMealTime] = useState<"Breakfast" | "Lunch" | "Dinner">("Lunch");
 
+  // BMI Calculator state
+  const [bmiHeight, setBmiHeight] = useState("");
+  const [bmiWeight, setBmiWeight] = useState("");
+  const [bmiResult, setBmiResult] = useState<number | null>(null);
+  const [bmiTip, setBmiTip] = useState("");
+  const [isLoadingBmiTip, setIsLoadingBmiTip] = useState(false);
+
+  const getBmiCategory = (bmi: number) => {
+    if (bmi < 18.5) return { label: "Underweight", color: "text-blue-400", bg: "bg-blue-400/20", border: "border-blue-400/30", icon: TrendingDown, tip: "underweight" };
+    if (bmi < 25)   return { label: "Healthy",     color: "text-green-400", bg: "bg-green-400/20", border: "border-green-400/30", icon: Minus, tip: "at a healthy weight" };
+    if (bmi < 30)   return { label: "Overweight",  color: "text-yellow-400", bg: "bg-yellow-400/20", border: "border-yellow-400/30", icon: TrendingUp, tip: "overweight" };
+    return           { label: "Obese",         color: "text-red-400", bg: "bg-red-400/20", border: "border-red-400/30", icon: TrendingUp, tip: "obese" };
+  };
+
+  const calculateBmi = () => {
+    const h = parseFloat(bmiHeight) / 100;
+    const w = parseFloat(bmiWeight);
+    if (!h || !w || h <= 0 || w <= 0) return;
+    setBmiResult(parseFloat((w / (h * h)).toFixed(1)));
+    setBmiTip("");
+  };
+
+  const getAiBmiTip = async () => {
+    if (!bmiResult) return;
+    const cat = getBmiCategory(bmiResult);
+    setIsLoadingBmiTip(true);
+    setBmiTip("");
+    try {
+      const prompt = `The user has a BMI of ${bmiResult} (${cat.label}). They follow a ${user?.diet_type || "balanced"} diet and their goal is ${user?.goal || "healthy lifestyle"}. Give 3 short, practical, specific Indian diet tips (bullet points) to help them reach a healthy BMI. Be encouraging and concise.`;
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": apiKey },
+        body: JSON.stringify({ messages: [{ role: "user", content: prompt }], user }),
+      });
+      const data = await res.json();
+      setBmiTip(data.content || "Could not load tips.");
+    } catch {
+      setBmiTip("Could not load tips. Check your API key in Account settings.");
+    } finally {
+      setIsLoadingBmiTip(false);
+    }
+  };
+
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -78,7 +125,12 @@ export default function NutriCoachWeb() {
   // Load settings from localStorage
   useEffect(() => {
     const savedUser = localStorage.getItem("nutricoach_active_user");
-    if (savedUser) setUser(JSON.parse(savedUser));
+    if (savedUser) {
+      const parsed = JSON.parse(savedUser);
+      setUser(parsed);
+      setBmiHeight(parsed.height || "");
+      setBmiWeight(parsed.weight || "");
+    }
     const savedKey = localStorage.getItem("nutricoach_key");
     if (savedKey) setApiKey(savedKey);
   }, []);
@@ -543,10 +595,11 @@ export default function NutriCoachWeb() {
 
         <nav className="flex-1 space-y-2">
           {[
-            { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
-            { id: "history", icon: History, label: "History" },
-            { id: "nutritionists", icon: MapPin, label: "Nutritionists" },
-            { id: "account", icon: User, label: "Account" },
+            { id: "dashboard",    icon: LayoutDashboard, label: "Dashboard" },
+            { id: "bmi",          icon: Activity,        label: "BMI Check" },
+            { id: "history",      icon: History,         label: "History" },
+            { id: "nutritionists",icon: MapPin,          label: "Nutritionists" },
+            { id: "account",      icon: User,            label: "Account" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -688,6 +741,142 @@ export default function NutriCoachWeb() {
                     </motion.div>
                   )}
                 </AnimatePresence>
+              </motion.div>
+            )}
+
+            {activeTab === "bmi" && (
+              <motion.div key="bmi" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto space-y-8">
+                <div className="flex flex-col md:flex-row gap-8">
+                  {/* Calculator Input */}
+                  <div className="flex-1 glass p-8 rounded-3xl space-y-6">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="bg-primary/20 p-3 rounded-2xl">
+                        <Activity className="text-primary w-6 h-6" />
+                      </div>
+                      <h3 className="text-xl font-bold">BMI Calculator</h3>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm text-gray-400">Height (cm)</label>
+                        <input 
+                          type="number" 
+                          value={bmiHeight} 
+                          onChange={e => setBmiHeight(e.target.value)} 
+                          className="auth-input bg-white/5" 
+                          placeholder="e.g. 175" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm text-gray-400">Weight (kg)</label>
+                        <input 
+                          type="number" 
+                          value={bmiWeight} 
+                          onChange={e => setBmiWeight(e.target.value)} 
+                          className="auth-input bg-white/5" 
+                          placeholder="e.g. 70" 
+                        />
+                      </div>
+                      <button 
+                        onClick={calculateBmi}
+                        className="w-full py-4 bg-primary text-black font-bold rounded-2xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+                      >
+                        Calculate BMI
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* BMI Results */}
+                  <div className="flex-1 flex flex-col gap-6">
+                    {bmiResult ? (() => {
+                      const bmiCat = getBmiCategory(bmiResult);
+                      const Icon = bmiCat.icon;
+                      return (
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.9 }} 
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="glass p-8 rounded-3xl flex-1 flex flex-col items-center justify-center text-center space-y-4 relative overflow-hidden"
+                        >
+                          <div className={`absolute top-0 right-0 p-4 ${bmiCat.color}`}>
+                            <Icon size={48} className="opacity-10" />
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <p className="text-gray-400 text-sm font-medium uppercase tracking-widest">Your BMI Score</p>
+                            <h2 className="text-6xl font-black gradient-text">{bmiResult}</h2>
+                          </div>
+
+                          <div className={`px-6 py-2 rounded-full font-bold text-sm ${bmiCat.bg} ${bmiCat.color} ${bmiCat.border} border`}>
+                            {bmiCat.label}
+                          </div>
+
+                          <div className="w-full pt-4">
+                            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden flex">
+                              <div className="h-full bg-blue-400" style={{ width: "18.5%" }} />
+                              <div className="h-full bg-green-400" style={{ width: "6.5%" }} />
+                              <div className="h-full bg-yellow-400" style={{ width: "5%" }} />
+                              <div className="h-full bg-red-400" style={{ width: "70%" }} />
+                            </div>
+                            <div className="relative w-full h-4 mt-1">
+                              <div 
+                                className="absolute top-0 w-1 h-3 bg-white shadow-xl shadow-white/50 transition-all duration-1000" 
+                                style={{ left: `${Math.min(Math.max((bmiResult / 50) * 100, 0), 100)}%` }}
+                              />
+                            </div>
+                            <p className="text-[10px] text-gray-500 mt-2 flex justify-between px-1">
+                              <span>15</span><span>18.5</span><span>25</span><span>30</span><span>40+</span>
+                            </p>
+                          </div>
+
+                          <div className="pt-4 text-sm text-gray-400">
+                            <p>Ideal weight for your height:</p>
+                            <p className="text-white font-bold">
+                              {(18.5 * (parseFloat(bmiHeight)/100)**2).toFixed(1)}kg - {(24.9 * (parseFloat(bmiHeight)/100)**2).toFixed(1)}kg
+                            </p>
+                          </div>
+                        </motion.div>
+                      );
+                    })() : (
+                      <div className="glass p-8 rounded-3xl flex-1 flex flex-col items-center justify-center text-center text-gray-500 border-dashed border-2 border-white/5">
+                        <Activity size={48} className="mb-4 opacity-20" />
+                        <p>Calculate your BMI to see results and diet tips here.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* AI Tips Section */}
+                {bmiResult && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="glass p-8 rounded-3xl border-primary/20 bg-primary/5"
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <Bot className="text-primary w-6 h-6" />
+                        <h3 className="text-xl font-bold">AI Diet Recommendations</h3>
+                      </div>
+                      <button 
+                        onClick={getAiBmiTip}
+                        disabled={isLoadingBmiTip}
+                        className="px-6 py-2 bg-primary text-black text-sm font-bold rounded-xl hover:bg-primary/90 transition-all flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {isLoadingBmiTip ? <Loader2 size={16} className="animate-spin" /> : <PlusCircle size={16} />}
+                        {bmiTip ? "Regenerate Tips" : "Get Personalized Tips"}
+                      </button>
+                    </div>
+
+                    {bmiTip ? (
+                      <div className="prose prose-invert max-w-none text-gray-300">
+                        <FormattedMessage content={bmiTip} />
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 italic text-sm text-center py-4">Click "Get Personalized Tips" to see how to reach your ideal weight.</p>
+                    )}
+                  </motion.div>
+                )}
               </motion.div>
             )}
 
