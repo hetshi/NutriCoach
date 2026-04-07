@@ -278,7 +278,7 @@ export default function NutriCoachWeb() {
     }
   };
 
-  const startVoice = () => {
+  const startVoice = (onTranscript?: (text: string) => void) => {
     if (!("webkitSpeechRecognition" in window)) {
       alert("Voice recognition is not supported in this browser.");
       return;
@@ -289,7 +289,11 @@ export default function NutriCoachWeb() {
     recognition.onend = () => setIsListening(false);
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
-      handleSend(transcript);
+      if (onTranscript) {
+        onTranscript(transcript);
+      } else {
+        handleSend(transcript);
+      }
     };
     recognition.start();
   };
@@ -1113,18 +1117,25 @@ export default function NutriCoachWeb() {
                 )}
               </div>
 
-              <div className="flex gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                 <button 
                   onClick={() => { setActiveType("bill"); fileInputRef.current?.click(); }}
-                  className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition"
+                  className="py-4 bg-white/5 border border-white/10 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition text-xs md:text-sm"
                 >
-                  <ImageIcon className="w-4 h-4" /> Scan Bill
+                  <ImageIcon className="w-4 h-4 text-primary" /> Scan Bill
+                </button>
+                <button 
+                  onClick={() => startVoice((text) => setIngredients(prev => prev ? `${prev}, ${text}` : text))}
+                  className={`py-4 bg-white/5 border border-white/10 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition text-xs md:text-sm ${isListening ? "border-primary text-primary" : ""}`}
+                >
+                  <Mic className={`w-4 h-4 ${isListening ? "animate-pulse" : ""}`} /> 
+                  {isListening ? "Listening..." : "Voice Input"}
                 </button>
                 <button 
                   onClick={generateMealPlanFromConfig}
-                  className="flex-1 py-4 bg-primary text-black rounded-2xl font-bold hover:bg-primary/90 transition"
+                  className="col-span-2 lg:col-span-1 py-4 bg-primary text-black rounded-2xl font-bold hover:bg-primary/90 transition text-xs md:text-sm shadow-lg shadow-primary/20"
                 >
-                  Generate
+                  Generate Plan
                 </button>
               </div>
               <button onClick={() => { setIsConfiguringPlan(false); setPlanType(null); }} className="w-full text-gray-500 hover:text-white transition text-sm text-center">Close</button>
