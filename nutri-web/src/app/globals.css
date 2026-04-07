@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #FCF8F3;
-  --foreground: #2F3E46;
-  --primary: #52796F;
-  --primary-hover: #354F52;
-  --accent: #84A98C;
-  --font-sans: var(--font-outfit), sans-serif;
+  --background: #D6CCC2;
+  --foreground: #4E342E;
+  --primary: #6B705C;
+  --primary-hover: #5B614D;
+  --accent: #CB997E;
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -17,15 +17,15 @@ body {
 }
 
 .glass {
-  background: rgba(227, 213, 202, 0.4);
+  background: rgba(245, 235, 224, 0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(53, 79, 82, 0.1);
-  box-shadow: 0 10px 15px -3px rgba(53, 79, 82, 0.05), 0 4px 6px -2px rgba(53, 79, 82, 0.02);
+  border: 1px solid rgba(78, 52, 46, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(78, 52, 46, 0.1), 0 4px 6px -2px rgba(78, 52, 46, 0.05);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #52796F 0%, #84A98C 100%);
+  background: linear-gradient(135deg, #6B705C 0%, #CB997E 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -36,15 +36,15 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #F5F1ED;
+  background: #E3D5CA;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #CAD2C5;
+  background: #A5A58D;
   border-radius: 10px;
-  border: 2px solid #F5F1ED;
+  border: 2px solid #E3D5CA;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #84A98C;
+  background: #6B705C;
 }
