@@ -385,7 +385,7 @@ export default function NutriCoachWeb() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-[#0a0a0a]">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-[#FDFBF7]">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -397,7 +397,7 @@ export default function NutriCoachWeb() {
               <Leaf className="text-primary w-8 h-8" />
             </div>
             <h1 className="text-3xl font-bold gradient-text">Welcome to NutriCoach</h1>
-            <p className="text-gray-400">Your Personal AI Indian Nutritionist</p>
+            <p className="text-stone-500">Your Personal AI Indian Nutritionist</p>
           </div>
 
           {/* Tab Toggle */}
@@ -534,7 +534,7 @@ export default function NutriCoachWeb() {
                     autoComplete="new-password"
                     className="auth-input pr-12"
                   />
-                  <button type="button" onClick={() => setShowRegPass(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary text-xs font-bold">
+                  <button type="button" onClick={() => setShowRegPass(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-primary text-xs font-bold">
                     {showRegPass ? "HIDE" : "SHOW"}
                   </button>
                 </div>
@@ -547,14 +547,14 @@ export default function NutriCoachWeb() {
                     autoComplete="new-password"
                     className="auth-input pr-12"
                   />
-                  <button type="button" onClick={() => setShowRegConfirm(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary text-xs font-bold">
+                  <button type="button" onClick={() => setShowRegConfirm(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-stone-400 hover:text-primary text-xs font-bold">
                     {showRegConfirm ? "HIDE" : "SHOW"}
                   </button>
                 </div>
-                <button className="w-full py-4 bg-primary text-black font-bold rounded-2xl hover:bg-primary-hover transition-all">
+                <button className="w-full py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary-hover transition-all">
                   Start Your Journey
                 </button>
-                <p className="text-center text-gray-500 text-sm">
+                <p className="text-center text-stone-400 text-sm">
                   Already have an account?{" "}
                   <button type="button" onClick={() => { setAuthTab("login"); setLoginError(""); }} className="text-primary underline">
                     Login
@@ -568,24 +568,24 @@ export default function NutriCoachWeb() {
         <style jsx>{`
           .auth-input {
             width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             border-radius: 1rem;
             padding: 0.75rem 1rem;
-            color: white;
+            color: #292524;
             outline: none;
             transition: border-color 0.2s;
           }
-          .auth-input:focus { border-color: #22c55e; }
+          .auth-input:focus { border-color: var(--primary); }
         `}</style>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-[#0a0a0a] text-white overflow-hidden">
+    <div className="flex h-screen bg-[#FDFBF7] text-stone-800 overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-20 md:w-64 glass border-r border-white/10 flex flex-col p-4 md:p-6 transition-all">
+      <aside className="w-20 md:w-64 glass border-r border-stone-200 flex flex-col p-4 md:p-6 transition-all">
         <div className="flex items-center gap-3 mb-10 px-2 flex-col items-start">
           <div className="flex items-center gap-3">
             <Leaf className="text-primary w-8 h-8 shrink-0" />
@@ -726,7 +726,7 @@ export default function NutriCoachWeb() {
                         <div className="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-hide">
                           {messages.map((m, i) => (
                             <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                              <div className={`p-6 rounded-2xl ${m.role === "user" ? "bg-primary text-black font-bold" : "bg-white/5 text-gray-100 italic"}`}>
+                              <div className={`p-6 rounded-2xl ${m.role === "user" ? "bg-primary text-white font-bold" : "bg-stone-800/5 text-stone-700 italic"}`}>
                                 {m.role === "assistant" ? <FormattedMessage content={m.content} /> : <p className="whitespace-pre-wrap">{m.content}</p>}
                               </div>
                             </div>
@@ -806,7 +806,7 @@ export default function NutriCoachWeb() {
                           </div>
                           
                           <div className="space-y-1">
-                            <p className="text-gray-400 text-sm font-medium uppercase tracking-widest">Your BMI Score</p>
+                            <p className="text-stone-500 text-sm font-medium uppercase tracking-widest">Your BMI Score</p>
                             <h2 className="text-6xl font-black gradient-text">{bmiResult}</h2>
                           </div>
 
@@ -815,7 +815,7 @@ export default function NutriCoachWeb() {
                           </div>
 
                           <div className="w-full pt-4">
-                            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden flex">
+                            <div className="h-2 w-full bg-stone-800/5 rounded-full overflow-hidden flex">
                               <div className="h-full bg-blue-400" style={{ width: "18.5%" }} />
                               <div className="h-full bg-green-400" style={{ width: "6.5%" }} />
                               <div className="h-full bg-yellow-400" style={{ width: "5%" }} />
@@ -823,25 +823,25 @@ export default function NutriCoachWeb() {
                             </div>
                             <div className="relative w-full h-4 mt-1">
                               <div 
-                                className="absolute top-0 w-1 h-3 bg-white shadow-xl shadow-white/50 transition-all duration-1000" 
+                                className="absolute top-0 w-1 h-3 bg-stone-800 shadow-xl shadow-black/10 transition-all duration-1000" 
                                 style={{ left: `${Math.min(Math.max((bmiResult / 50) * 100, 0), 100)}%` }}
                               />
                             </div>
-                            <p className="text-[10px] text-gray-500 mt-2 flex justify-between px-1">
+                            <p className="text-[10px] text-stone-400 mt-2 flex justify-between px-1">
                               <span>15</span><span>18.5</span><span>25</span><span>30</span><span>40+</span>
                             </p>
                           </div>
 
-                          <div className="pt-4 text-sm text-gray-400">
+                          <div className="pt-4 text-sm text-stone-500">
                             <p>Ideal weight for your height:</p>
-                            <p className="text-white font-bold">
+                            <p className="text-stone-800 font-bold">
                               {(18.5 * (parseFloat(bmiHeight)/100)**2).toFixed(1)}kg - {(24.9 * (parseFloat(bmiHeight)/100)**2).toFixed(1)}kg
                             </p>
                           </div>
                         </motion.div>
                       );
                     })() : (
-                      <div className="glass p-8 rounded-3xl flex-1 flex flex-col items-center justify-center text-center text-gray-500 border-dashed border-2 border-white/5">
+                      <div className="glass p-8 rounded-3xl flex-1 flex flex-col items-center justify-center text-center text-stone-500 border-dashed border-2 border-stone-200/10">
                         <Activity size={48} className="mb-4 opacity-20" />
                         <p>Calculate your BMI to see results and diet tips here.</p>
                       </div>
@@ -865,7 +865,7 @@ export default function NutriCoachWeb() {
                       <button 
                         onClick={getAiBmiTip}
                         disabled={isLoadingBmiTip}
-                        className="px-6 py-2 bg-primary text-black text-sm font-bold rounded-xl hover:bg-primary/90 transition-all flex items-center gap-2 disabled:opacity-50"
+                        className="px-6 py-2 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 transition-all flex items-center gap-2 disabled:opacity-50"
                       >
                         {isLoadingBmiTip ? <Loader2 size={16} className="animate-spin" /> : <PlusCircle size={16} />}
                         {bmiTip ? "Regenerate Tips" : "Get Personalized Tips"}
@@ -873,11 +873,11 @@ export default function NutriCoachWeb() {
                     </div>
 
                     {bmiTip ? (
-                      <div className="prose prose-invert max-w-none text-gray-300">
+                      <div className="prose prose-stone max-w-none text-stone-600">
                         <FormattedMessage content={bmiTip} />
                       </div>
                     ) : (
-                      <p className="text-gray-500 italic text-sm text-center py-4">Click "Get Personalized Tips" to see how to reach your ideal weight.</p>
+                      <p className="text-stone-400 italic text-sm text-center py-4">Click "Get Personalized Tips" to see how to reach your ideal weight.</p>
                     )}
                   </motion.div>
                 )}
@@ -913,7 +913,7 @@ export default function NutriCoachWeb() {
               <motion.div key="nutritionists" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-4xl mx-auto space-y-8">
                 <div className="space-y-2">
                   <h3 className="text-xl font-bold">Find Local Experts</h3>
-                  <p className="text-gray-400">Search for nutritionists and dietitians in your city.</p>
+                  <p className="text-stone-500">Search for nutritionists and dietitians in your city.</p>
                 </div>
                 <div className="flex gap-4">
                   <div className="flex-1 relative">
@@ -922,13 +922,13 @@ export default function NutriCoachWeb() {
                       value={searchCity}
                       onChange={e => setSearchCity(e.target.value)}
                       placeholder="Enter city (e.g. Mumbai, Delhi)..."
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 outline-none focus:border-primary/50"
+                      className="w-full bg-stone-800/5 border border-stone-200 rounded-2xl pl-12 pr-4 py-4 outline-none focus:border-primary/50"
                     />
                   </div>
                   <button
                     onClick={handleNutritionistSearch}
                     disabled={isSearching}
-                    className="bg-primary text-black font-bold px-8 rounded-2xl hover:bg-primary-hover disabled:opacity-50 transition-all flex items-center gap-2"
+                    className="bg-primary text-white font-bold px-8 rounded-2xl hover:bg-primary-hover disabled:opacity-50 transition-all flex items-center gap-2"
                   >
                     {isSearching && <Loader2 className="w-4 h-4 animate-spin" />}
                     {isSearching ? "Searching..." : "Search"}
@@ -1049,7 +1049,7 @@ export default function NutriCoachWeb() {
                     <button 
                       onClick={() => { setActiveType("report"); fileInputRef.current?.click(); }}
                       disabled={isLoading}
-                      className="w-full md:w-auto px-8 py-4 bg-accent text-black rounded-2xl font-bold hover:bg-accent/90 transition shadow-lg shadow-accent/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                      className="w-full md:w-auto px-8 py-4 bg-accent text-white rounded-2xl font-bold hover:bg-accent/90 transition shadow-lg shadow-accent/20 flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       {isLoading && activeType === "report" ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
                       {isLoading && activeType === "report" ? "Analyzing..." : "Upload Now"}
@@ -1107,7 +1107,7 @@ export default function NutriCoachWeb() {
                   value={ingredients}
                   onChange={e => setIngredients(e.target.value)}
                   placeholder="List your available ingredients here..."
-                  className="w-full h-24 bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-primary/50 text-white resize-none text-sm"
+                  className="w-full h-24 bg-stone-800/5 border border-stone-200 rounded-2xl p-4 outline-none focus:border-primary/50 text-stone-800 resize-none text-sm"
                 />
                 {isScanningInModal && (
                   <div className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center text-primary gap-2">
@@ -1133,7 +1133,7 @@ export default function NutriCoachWeb() {
                 </button>
                 <button 
                   onClick={generateMealPlanFromConfig}
-                  className="col-span-2 lg:col-span-1 py-4 bg-primary text-black rounded-2xl font-bold hover:bg-primary/90 transition text-xs md:text-sm shadow-lg shadow-primary/20"
+                  className="col-span-2 lg:col-span-1 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-primary/90 transition text-xs md:text-sm shadow-lg shadow-primary/20"
                 >
                   Generate Plan
                 </button>
