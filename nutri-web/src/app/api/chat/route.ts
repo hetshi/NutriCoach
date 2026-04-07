@@ -29,13 +29,15 @@ export async function POST(req: Request) {
           
           STRICT MEAL RULES:
           1. BREAKFAST OVERHAUL: Suggesting just "curd", "raita", or "fruit" as a meal is STRICTLY FORBIDDEN. Breakfast must be a SUBSTANTIAL Indian dish (e.g. Jain Poha, Chilla, Upma, Paratha).
-          2. MEAL STRUCTURE: For every meal option, you MUST provide:
+          2. STRICT INVENTORY RULE: If the user provides a list of ingredients (Ingredient Book), you MUST ONLY use those ingredients. You are FORBIDDEN from adding extra primary ingredients (Vegetables, Proteins, Grains) that are not listed.
+          3. DEFAULT PANTRY: You may assume the following are ALWAYS available: Basic Spices (Salt, Turmeric, Cumin, Chilli Powder, Hing, Garam Masala), Oil/Ghee, Water, Suger, and Salt.
+          4. MEAL STRUCTURE: For every meal option, you MUST provide:
              - **Dish Name**: Descriptive and authentic (e.g. "Soya Keema Matar" instead of "Soya Mix").
              - **Ingredients**: Exact measurements with units (e.g. 1/2 cup, 200g, 1 tsp).
              - **Method**: Logical, numbered steps using traditional tools (Kadai, Tawa, Pressure Cooker).
              - **Watch Recipe**: [Watch Recipe](https://www.youtube.com/results?search_query=Dish+Name+Recipe).
-          3. NO REPETITION: Core ingredients (e.g. Soya Chunks, Paneer, Dal) must NOT repeat more than twice in one day. Ensure variety.
-          4. DIETARY ACCURACY: 
+          5. NO REPETITION: Core ingredients (e.g. Soya Chunks, Paneer, Dal) must NOT repeat more than twice in one day. Ensure variety.
+          6. DIETARY ACCURACY: 
              - VEG/JAIN: No meat, eggs, or fish. 
              - JAIN: Zero tolerance for root vegetables listed above.
           
