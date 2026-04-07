@@ -385,7 +385,7 @@ export default function NutriCoachWeb() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-[#0a0a0a]">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -393,19 +393,19 @@ export default function NutriCoachWeb() {
         >
           {/* Logo */}
           <div className="text-center space-y-2">
-            <div className="bg-primary/10 p-4 rounded-2xl w-fit mx-auto border border-primary/20">
+            <div className="bg-primary/20 p-4 rounded-2xl w-fit mx-auto border border-primary/30">
               <Leaf className="text-primary w-8 h-8" />
             </div>
             <h1 className="text-3xl font-bold gradient-text">Welcome to NutriCoach</h1>
-            <p className="text-gray-600 font-medium">Your Personal AI Indian Nutritionist</p>
+            <p className="text-gray-400">Your Personal AI Indian Nutritionist</p>
           </div>
 
           {/* Tab Toggle */}
-          <div className="flex bg-black/5 rounded-2xl p-1 border border-black/5">
+          <div className="flex bg-white/5 rounded-2xl p-1 border border-white/10">
             <button
               onClick={() => { setAuthTab("login"); setLoginError(""); }}
               className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all ${
-                authTab === "login" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-gray-600 hover:text-black"
+                authTab === "login" ? "bg-primary text-black" : "text-gray-400 hover:text-white"
               }`}
             >
               Login
@@ -413,7 +413,7 @@ export default function NutriCoachWeb() {
             <button
               onClick={() => { setAuthTab("register"); setLoginError(""); }}
               className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all ${
-                authTab === "register" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-gray-600 hover:text-black"
+                authTab === "register" ? "bg-primary text-black" : "text-gray-400 hover:text-white"
               }`}
             >
               Register
@@ -462,12 +462,12 @@ export default function NutriCoachWeb() {
                     ⚠️ {loginError}
                   </p>
                 )}
-                <button className="w-full py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary-hover transition-all shadow-lg shadow-primary/20">
+                <button className="w-full py-4 bg-primary text-black font-bold rounded-2xl hover:bg-primary/90 transition-all">
                   Login
                 </button>
                 <p className="text-center text-gray-500 text-sm">
                   New here?{" "}
-                  <button type="button" onClick={() => { setAuthTab("register"); setLoginError(""); }} className="text-primary font-bold underline">
+                  <button type="button" onClick={() => { setAuthTab("register"); setLoginError(""); }} className="text-primary underline">
                     Create an account
                   </button>
                 </p>
@@ -551,12 +551,12 @@ export default function NutriCoachWeb() {
                     {showRegConfirm ? "HIDE" : "SHOW"}
                   </button>
                 </div>
-                <button className="w-full py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary-hover transition-all shadow-lg shadow-primary/20">
+                <button className="w-full py-4 bg-primary text-black font-bold rounded-2xl hover:bg-primary-hover transition-all">
                   Start Your Journey
                 </button>
                 <p className="text-center text-gray-500 text-sm">
                   Already have an account?{" "}
-                  <button type="button" onClick={() => { setAuthTab("login"); setLoginError(""); }} className="text-primary font-bold underline">
+                  <button type="button" onClick={() => { setAuthTab("login"); setLoginError(""); }} className="text-primary underline">
                     Login
                   </button>
                 </p>
@@ -564,14 +564,28 @@ export default function NutriCoachWeb() {
             )}
           </AnimatePresence>
         </motion.div>
+
+        <style jsx>{`
+          .auth-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 0.75rem 1rem;
+            color: white;
+            outline: none;
+            transition: border-color 0.2s;
+          }
+          .auth-input:focus { border-color: #22c55e; }
+        `}</style>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans">
+    <div className="flex h-screen bg-[#0a0a0a] text-white overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-20 md:w-64 glass border-r border-black/5 flex flex-col p-4 md:p-6 transition-all">
+      <aside className="w-20 md:w-64 glass border-r border-white/10 flex flex-col p-4 md:p-6 transition-all">
         <div className="flex items-center gap-3 mb-10 px-2 flex-col items-start">
           <div className="flex items-center gap-3">
             <Leaf className="text-primary w-8 h-8 shrink-0" />
@@ -594,7 +608,7 @@ export default function NutriCoachWeb() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${activeTab === tab.id ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-gray-500 hover:bg-black/5 hover:text-black"
+              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${activeTab === tab.id ? "bg-primary/20 text-primary border border-primary/30" : "text-gray-400 hover:bg-white/5"
                 }`}
             >
               <tab.icon className="w-5 h-5 shrink-0" />
@@ -614,15 +628,15 @@ export default function NutriCoachWeb() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden relative">
-        <header className="p-6 md:p-8 flex items-center justify-between border-b border-black/5">
+        <header className="p-6 md:p-8 flex items-center justify-between border-b border-white/5">
           <div>
             <h2 className="text-2xl font-bold">Namaste, {user.name}!</h2>
-            <p className="text-gray-600 text-sm">{user.diet_type.charAt(0).toUpperCase() + user.diet_type.slice(1)} • {user.goal}</p>
+            <p className="text-gray-400 text-sm">{user.diet_type.charAt(0).toUpperCase() + user.diet_type.slice(1)} • {user.goal}</p>
           </div>
           <div className="hidden md:flex items-center gap-4">
-            <div className="bg-black/5 px-4 py-2 rounded-xl flex items-center gap-2 border border-black/5 font-medium">
+            <div className="bg-white/5 px-4 py-2 rounded-xl flex items-center gap-2 border border-white/10">
               <PlusCircle className="text-primary w-4 h-4" />
-              <span className="text-xs">New Session</span>
+              <span className="text-xs font-medium">New Session</span>
             </div>
           </div>
         </header>
@@ -671,64 +685,64 @@ export default function NutriCoachWeb() {
                 {/* Results Modal */}
                 <AnimatePresence>
                   {messages.length > 0 && !isConfiguringPlan && (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-6"
+                    >
                       <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 bg-white/60 backdrop-blur-md flex items-center justify-center p-6"
+                        initial={{ y: 50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 50, opacity: 0 }}
+                        className="max-w-3xl w-full glass rounded-3xl overflow-hidden flex flex-col max-h-[90vh] border border-white/20"
                       >
-                        <motion.div 
-                          initial={{ y: 50, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          exit={{ y: 50, opacity: 0 }}
-                          className="max-w-3xl w-full glass rounded-3xl overflow-hidden flex flex-col max-h-[90vh] border border-black/10 shadow-2xl"
-                        >
-                          <div className="p-6 border-b border-black/5 flex items-center justify-between bg-black/5">
-                            <h3 className="text-xl font-bold flex items-center gap-2">
-                               <Bot className="text-primary" /> NutriCoach Response
-                            </h3>
-                            <div className="flex items-center gap-2">
-                              <button 
-                                onClick={() => {
-                                  const content = messages[messages.length - 1].content;
-                                  const blob = new Blob([content], { type: "text/plain" });
-                                  const url = URL.createObjectURL(blob);
-                                  const a = document.createElement("a");
-                                  a.href = url;
-                                  a.download = "NutriCoach-Plan.txt";
-                                  a.click();
-                                }}
-                                className="p-2 hover:bg-black/5 rounded-lg text-gray-600"
-                                title="Download TXT"
-                              >
-                                <Download size={20} />
-                              </button>
-                              <button onClick={() => setMessages([])} className="p-2 hover:bg-red-500/10 rounded-lg text-red-500">
-                                <Trash2 size={20} />
-                              </button>
-                            </div>
-                          </div>
-  
-                          <div className="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-hide">
-                            {messages.map((m, i) => (
-                              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                                <div className={`p-6 rounded-2xl ${m.role === "user" ? "bg-primary text-white font-bold shadow-lg shadow-primary/20" : "bg-black/5 text-gray-800 italic"}`}>
-                                  {m.role === "assistant" ? <FormattedMessage content={m.content} /> : <p className="whitespace-pre-wrap">{m.content}</p>}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-  
-                          <div className="p-6 bg-black/5 border-t border-black/5 flex justify-center">
+                        <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+                          <h3 className="text-xl font-bold flex items-center gap-2">
+                             <Bot className="text-primary" /> NutriCoach Response
+                          </h3>
+                          <div className="flex items-center gap-2">
                             <button 
-                              onClick={() => setMessages([])}
-                              className="px-10 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-hover transition shadow-lg shadow-primary/20"
+                              onClick={() => {
+                                const content = messages[messages.length - 1].content;
+                                const blob = new Blob([content], { type: "text/plain" });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.href = url;
+                                a.download = "NutriCoach-Plan.txt";
+                                a.click();
+                              }}
+                              className="p-2 hover:bg-white/10 rounded-lg text-gray-400"
+                              title="Download TXT"
                             >
-                              Done
+                              <Download size={20} />
+                            </button>
+                            <button onClick={() => setMessages([])} className="p-2 hover:bg-red-500/20 rounded-lg text-red-500">
+                              <Trash2 size={20} />
                             </button>
                           </div>
-                        </motion.div>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-hide">
+                          {messages.map((m, i) => (
+                            <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                              <div className={`p-6 rounded-2xl ${m.role === "user" ? "bg-primary text-black font-bold" : "bg-white/5 text-gray-100 italic"}`}>
+                                {m.role === "assistant" ? <FormattedMessage content={m.content} /> : <p className="whitespace-pre-wrap">{m.content}</p>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="p-6 bg-white/5 border-t border-white/10 flex justify-center">
+                          <button 
+                            onClick={() => setMessages([])}
+                            className="px-10 py-3 bg-primary text-black font-bold rounded-xl hover:bg-primary/90 transition"
+                          >
+                            Done
+                          </button>
+                        </div>
                       </motion.div>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </motion.div>
@@ -740,7 +754,7 @@ export default function NutriCoachWeb() {
                   {/* Calculator Input */}
                   <div className="flex-1 glass p-8 rounded-3xl space-y-6">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="bg-primary/10 p-3 rounded-2xl">
+                      <div className="bg-primary/20 p-3 rounded-2xl">
                         <Activity className="text-primary w-6 h-6" />
                       </div>
                       <h3 className="text-xl font-bold">BMI Calculator</h3>
@@ -859,11 +873,11 @@ export default function NutriCoachWeb() {
                     </div>
 
                     {bmiTip ? (
-                      <div className="prose prose-neutral max-w-none text-gray-800 font-medium">
+                      <div className="prose prose-invert max-w-none text-gray-300">
                         <FormattedMessage content={bmiTip} />
                       </div>
                     ) : (
-                      <p className="text-gray-600 italic text-sm text-center py-4">Click "Get Personalized Tips" to see how to reach your ideal weight.</p>
+                      <p className="text-gray-500 italic text-sm text-center py-4">Click "Get Personalized Tips" to see how to reach your ideal weight.</p>
                     )}
                   </motion.div>
                 )}
@@ -874,15 +888,15 @@ export default function NutriCoachWeb() {
               <motion.div key="history" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-4xl mx-auto space-y-6">
                 <h3 className="text-xl font-bold">Meal History</h3>
                 {!user.meal_history?.length ? (
-                  <div className="text-center py-20 text-gray-400">No saved plans yet.</div>
+                  <div className="text-center py-20 text-gray-500">No saved plans yet.</div>
                 ) : (
                   user.meal_history.map((h, i) => (
-                    <div key={i} className="glass p-6 rounded-2xl space-y-3 shadow-sm border-black/5">
+                    <div key={i} className="glass p-6 rounded-2xl space-y-3">
                       <div className="flex justify-between items-center text-sm">
-                        <span className={`px-3 py-1 rounded-full font-bold ${h.type === "Medical Report" ? "bg-accent/10 text-accent border border-accent/20" : "bg-primary/10 text-primary border border-primary/20"}`}>{h.type}</span>
-                        <span className="text-gray-500 font-medium">{h.timestamp}</span>
+                        <span className={`px-3 py-1 rounded-full font-bold ${h.type === "Medical Report" ? "bg-accent/20 text-accent" : "bg-primary/20 text-primary"}`}>{h.type}</span>
+                        <span className="text-gray-500">{h.timestamp}</span>
                       </div>
-                      <div className="text-gray-700 text-sm line-clamp-3 leading-relaxed">{h.content}</div>
+                      <div className="text-gray-300 text-sm line-clamp-3">{h.content}</div>
                       <button
                         onClick={() => { setActiveTab("dashboard"); setMessages([...messages, { role: "assistant", content: h.content }]); }}
                         className="text-primary text-xs font-bold hover:underline"
@@ -899,7 +913,7 @@ export default function NutriCoachWeb() {
               <motion.div key="nutritionists" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-4xl mx-auto space-y-8">
                 <div className="space-y-2">
                   <h3 className="text-xl font-bold">Find Local Experts</h3>
-                  <p className="text-gray-600">Search for nutritionists and dietitians in your city.</p>
+                  <p className="text-gray-400">Search for nutritionists and dietitians in your city.</p>
                 </div>
                 <div className="flex gap-4">
                   <div className="flex-1 relative">
@@ -908,13 +922,13 @@ export default function NutriCoachWeb() {
                       value={searchCity}
                       onChange={e => setSearchCity(e.target.value)}
                       placeholder="Enter city (e.g. Mumbai, Delhi)..."
-                      className="w-full bg-black/5 border border-black/10 rounded-2xl pl-12 pr-4 py-4 outline-none focus:border-primary/50 text-foreground"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 outline-none focus:border-primary/50"
                     />
                   </div>
                   <button
                     onClick={handleNutritionistSearch}
                     disabled={isSearching}
-                    className="bg-primary text-white font-bold px-8 rounded-2xl hover:bg-primary-hover disabled:opacity-50 transition-all flex items-center gap-2 shadow-lg shadow-primary/20"
+                    className="bg-primary text-black font-bold px-8 rounded-2xl hover:bg-primary-hover disabled:opacity-50 transition-all flex items-center gap-2"
                   >
                     {isSearching && <Loader2 className="w-4 h-4 animate-spin" />}
                     {isSearching ? "Searching..." : "Search"}
@@ -926,7 +940,7 @@ export default function NutriCoachWeb() {
                     <button
                       key={city}
                       onClick={() => { setSearchCity(city); setTimeout(handleNutritionistSearch, 100); }}
-                      className="px-4 py-2 rounded-full border border-black/10 hover:border-primary/50 hover:bg-primary/5 transition-all text-sm text-gray-600 hover:text-primary font-medium"
+                      className="px-4 py-2 rounded-full border border-white/10 hover:border-primary/50 hover:bg-primary/5 transition-all text-sm text-gray-400 hover:text-primary"
                     >
                       {city}
                     </button>
@@ -951,19 +965,19 @@ export default function NutriCoachWeb() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {nutritionists.map((n, i) => (
-                    <div key={i} className="glass p-6 rounded-3xl border border-black/5 hover:border-primary/30 transition-all shadow-sm hover:shadow-md">
+                    <div key={i} className="glass p-6 rounded-3xl border border-white/5 hover:border-primary/30 transition-all">
                       <h4 className="text-lg font-bold text-primary">{n.name}</h4>
-                      <p className="text-sm italic text-gray-600">{n.specialty}</p>
-                      <div className="flex items-center gap-2 text-xs mt-4 text-gray-700 font-medium">
+                      <p className="text-sm italic text-gray-400">{n.specialty}</p>
+                      <div className="flex items-center gap-2 text-xs mt-4 text-gray-300">
                         <MapPin className="w-3 h-3 text-red-500" /> {n.area}
                       </div>
                       {n.instagram && n.instagram !== "N/A" && (
-                        <p className="text-xs mt-2 text-pink-500 font-mono font-bold">{n.instagram}</p>
+                        <p className="text-xs mt-2 text-pink-400 font-mono">{n.instagram}</p>
                       )}
                       <div className="flex gap-3 mt-6">
                         <button
                           onClick={() => window.open(`https://www.google.com/maps/search/${encodeURIComponent(n.name + " nutritionist " + n.area)}`, "_blank")}
-                          className="flex-1 py-3 bg-black/5 hover:bg-black/10 rounded-xl text-xs font-bold border border-black/10"
+                          className="flex-1 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold border border-white/10"
                         >
                           📍 Verify on Maps
                         </button>
@@ -988,39 +1002,39 @@ export default function NutriCoachWeb() {
             {activeTab === "account" && (
               <motion.div key="account" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-4xl mx-auto space-y-8">
                 <div className="flex items-center gap-6">
-                  <div className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center border-2 border-primary/20 shadow-md">
+                  <div className="w-24 h-24 rounded-3xl bg-primary/20 flex items-center justify-center border-2 border-primary/30">
                     <User className="w-12 h-12 text-primary" />
                   </div>
                   <div>
                     <h3 className="text-3xl font-bold">{user.name}</h3>
-                    <p className="text-gray-600 font-medium">NutriCoach User since {new Date().getFullYear()}</p>
+                    <p className="text-gray-400">NutriCoach User since {new Date().getFullYear()}</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="glass p-6 rounded-3xl space-y-4 shadow-sm border-black/5">
-                      <h4 className="font-bold flex items-center gap-2 text-foreground/80"><Settings className="w-4 h-4 text-primary" /> Profile Metrics</h4>
+                    <div className="glass p-6 rounded-3xl space-y-4">
+                      <h4 className="font-bold flex items-center gap-2"><Settings className="w-4 h-4 text-primary" /> Profile Metrics</h4>
                       <div className="space-y-3">
-                        <div className="flex justify-between border-b border-black/5 pb-2 text-sm font-medium">
-                          <span className="text-gray-600">Age</span><span>{user.age} Years</span>
+                        <div className="flex justify-between border-b border-white/5 pb-2 text-sm">
+                          <span className="text-gray-400">Age</span><span>{user.age} Years</span>
                         </div>
-                        <div className="flex justify-between border-b border-black/5 pb-2 text-sm font-medium">
-                          <span className="text-gray-600">Height</span><span>{user.height} cm</span>
+                        <div className="flex justify-between border-b border-white/5 pb-2 text-sm">
+                          <span className="text-gray-400">Height</span><span>{user.height} cm</span>
                         </div>
-                        <div className="flex justify-between text-sm font-medium">
-                          <span className="text-gray-600">Weight</span><span>{user.weight} kg</span>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Weight</span><span>{user.weight} kg</span>
                         </div>
                       </div>
                     </div>
 
-                  <div className="glass p-6 rounded-3xl space-y-4 shadow-sm border-black/5">
-                    <h4 className="font-bold flex items-center gap-2 text-foreground/80"><Leaf className="w-4 h-4 text-primary" /> Diet & Goal</h4>
+                  <div className="glass p-6 rounded-3xl space-y-4">
+                    <h4 className="font-bold flex items-center gap-2"><Leaf className="w-4 h-4 text-primary" /> Diet & Goal</h4>
                     <div className="space-y-3">
-                      <div className="flex justify-between border-b border-black/5 pb-2">
-                        <span className="text-gray-600">Diet Type</span><span className="capitalize font-bold text-primary">{user.diet_type}</span>
+                      <div className="flex justify-between border-b border-white/5 pb-2">
+                        <span className="text-gray-400">Diet Type</span><span className="capitalize">{user.diet_type}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Current Goal</span><span className="text-primary font-extrabold">{user.goal}</span>
+                        <span className="text-gray-400">Current Goal</span><span className="text-primary font-bold">{user.goal}</span>
                       </div>
                     </div>
                   </div>
@@ -1058,20 +1072,20 @@ export default function NutriCoachWeb() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-white/60 backdrop-blur-md flex items-start justify-center p-4 md:p-10 overflow-y-auto"
+            className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-start justify-center p-4 md:p-10 overflow-y-auto"
           >
             <motion.div 
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 20, opacity: 0 }}
-              className="max-w-md w-full glass p-6 md:p-10 rounded-3xl space-y-6 relative border border-black/10 my-auto shadow-2xl"
+              className="max-w-md w-full glass p-6 md:p-10 rounded-3xl space-y-6 relative border border-white/20 my-auto shadow-2xl"
             >
               <div className="text-center space-y-2">
-                <div className="bg-primary/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/20">
+                <div className="bg-primary/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/30">
                   <Utensils className="text-primary w-8 h-8" />
                 </div>
                 <h3 className="text-3xl font-bold text-primary text-center w-full">Ingredient Book</h3>
-                <p className="text-gray-600 font-bold capitalize text-center w-full">{planType} Configuration</p>
+                <p className="text-gray-400 capitalize text-center w-full">{planType} Configuration</p>
               </div>
 
               {planType === "specific" && (
@@ -1080,7 +1094,7 @@ export default function NutriCoachWeb() {
                     <button
                       key={t}
                       onClick={() => setMealTime(t)}
-                      className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${mealTime === t ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-black/5 text-gray-500 border-black/10 hover:border-black/20"}`}
+                      className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${mealTime === t ? "bg-primary text-black border-primary" : "bg-white/5 text-gray-400 border-white/10 hover:border-white/20"}`}
                     >
                       {t}
                     </button>
@@ -1093,10 +1107,10 @@ export default function NutriCoachWeb() {
                   value={ingredients}
                   onChange={e => setIngredients(e.target.value)}
                   placeholder="List your available ingredients here..."
-                  className="w-full h-24 bg-black/5 border border-black/10 rounded-2xl p-4 outline-none focus:border-primary/50 text-foreground resize-none text-sm font-medium"
+                  className="w-full h-24 bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-primary/50 text-white resize-none text-sm"
                 />
                 {isScanningInModal && (
-                  <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center text-primary gap-2">
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center text-primary gap-2">
                     <Loader2 className="animate-spin" />
                     <span className="text-xs font-bold uppercase tracking-widest text-center">Reading Bill...</span>
                   </div>
@@ -1106,25 +1120,25 @@ export default function NutriCoachWeb() {
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                 <button 
                   onClick={() => { setActiveType("bill"); fileInputRef.current?.click(); }}
-                  className="py-4 bg-black/5 border border-black/10 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-black/10 transition text-xs md:text-sm"
+                  className="py-4 bg-white/5 border border-white/10 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition text-xs md:text-sm"
                 >
                   <ImageIcon className="w-4 h-4 text-primary" /> Scan Bill
                 </button>
                 <button 
                   onClick={() => startVoice((text) => setIngredients(prev => prev ? `${prev}, ${text}` : text))}
-                  className={`py-4 bg-black/5 border border-black/10 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-black/10 transition text-xs md:text-sm ${isListening ? "border-primary text-primary" : ""}`}
+                  className={`py-4 bg-white/5 border border-white/10 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition text-xs md:text-sm ${isListening ? "border-primary text-primary" : ""}`}
                 >
                   <Mic className={`w-4 h-4 ${isListening ? "animate-pulse" : ""}`} /> 
                   {isListening ? "Listening..." : "Voice Input"}
                 </button>
                 <button 
                   onClick={generateMealPlanFromConfig}
-                  className="col-span-2 lg:col-span-1 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-primary-hover transition text-xs md:text-sm shadow-lg shadow-primary/20"
+                  className="col-span-2 lg:col-span-1 py-4 bg-primary text-black rounded-2xl font-bold hover:bg-primary/90 transition text-xs md:text-sm shadow-lg shadow-primary/20"
                 >
                   Generate Plan
                 </button>
               </div>
-              <button onClick={() => { setIsConfiguringPlan(false); setPlanType(null); }} className="w-full text-gray-500 hover:text-foreground transition text-sm text-center font-medium font-bold">Close</button>
+              <button onClick={() => { setIsConfiguringPlan(false); setPlanType(null); }} className="w-full text-gray-500 hover:text-white transition text-sm text-center">Close</button>
             </motion.div>
           </motion.div>
         )}
