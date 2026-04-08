@@ -236,10 +236,19 @@ export default function NutriCoachWeb() {
     if (!planType) return;
     const healthContext = user?.health_advisor ? `IMPORTANT: User has these medical insights: ${user.health_advisor}. ACT ACCORDINGLY by avoiding restricted foods or prioritizing needed nutrients.` : "";
     const dietReminder = user?.diet_type === "jain" ? "CRITICAL: The user is JAIN. You MUST NOT include Onion, Garlic, Potato, Ginger, Carrot, or any Root Vegetables. " : "";
-    const inventoryReminder = "STRICT: Use ONLY primary ingredients from the list below. DO NOT suggest extra vegetables or proteins not listed. Masalas and basic pantry items are allowed. ";
-    const breakfastReminder = "IMPORTANT: Suggest a substantial Indian breakfast (Poha, Chilla, Upma, etc.) using provided ingredients. NO 'only curd' or 'only fruit' meals. ";
+    const inventoryReminder = "STRICT: Use ONLY primary ingredients from the list below. DO NOT suggest extra vegetables or proteins not listed. masalas and basic pantry items are allowed. ";
     
-    const prompt = `${dietReminder}${inventoryReminder}${breakfastReminder}I am using my Ingredient Book. ${healthContext} Plan type: ${planType}. ${planType === "specific" ? `Specifically for ${mealTime}. ` : ""}${ingredients ? `Ingredients available: ${ingredients}.` : "Suggest healthy recipes."} Please provide the plan with clickable YouTube recipe links using the format [Watch Recipe](URL).`;
+    // Explicit Quantity and Structure Instructions
+    let planMission = "";
+    if (planType === "daily") {
+      planMission = "MISSION: Provide a complete 1-day meal plan ONLY. You MUST include exactly 4 recipes: 1 Breakfast, 1 Lunch, 1 Healthy Snack, and 1 Dinner. ";
+    } else if (planType === "weekly") {
+      planMission = "MISSION: Provide a comprehensive 7-day meal plan (Day 1 to Day 7). For EACH of the 7 days, you MUST provide 4 recipes: 1 Breakfast, 1 Lunch, 1 Healthy Snack, and 1 Dinner. Total 28 recipes required. Ensure variety and use an organized day-by-day format. ";
+    } else {
+      planMission = `MISSION: Provide exactly 1 recipe for ${mealTime}. `;
+    }
+
+    const prompt = `${dietReminder}${inventoryReminder}${planMission}I am using my Ingredient Book. ${healthContext} Plan type: ${planType}. ${ingredients ? `Ingredients available: ${ingredients}.` : "Suggest healthy recipes."} Please provide the plan with clickable YouTube recipe links using the format [Watch Recipe](URL).`;
     
     setIsConfiguringPlan(false);
     handleSend(prompt);
