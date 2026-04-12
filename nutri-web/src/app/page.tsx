@@ -27,6 +27,7 @@ import {
   TrendingDown,
   Minus
 } from "lucide-react";
+import { jsPDF } from "jspdf";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Message {
@@ -709,16 +710,98 @@ Please generate the meal plan according to your hard rules.`;
                           <div className="flex items-center gap-2">
                             <button 
                               onClick={() => {
-                                const content = messages[messages.length - 1].content;
-                                const blob = new Blob([content], { type: "text/plain" });
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement("a");
-                                a.href = url;
-                                a.download = "NutriCoach-Plan.txt";
-                                a.click();
-                              }}
+                                  const content = messages[messages.length - 1].content;
+                                  
+                                  const doc = new jsPDF();
+                                  const marginLeft = 20;
+                                  let cursorY = 25;
+                                  const pageWidth = doc.internal.pageSize.getWidth();
+                                  const maxLineWidth = pageWidth - (marginLeft * 2);
+
+                                  // Header - "LaTeX-like" professional look
+                                  doc.setFont("times", "bold");
+                                  doc.setFontSize(22);
+                                  doc.setTextColor(40, 40, 40);
+                                  doc.text("NutriCoach - Meal Plan", marginLeft, cursorY);
+                                  
+                                  cursorY += 10;
+                                  doc.setDrawColor(200, 200, 200);
+                                  doc.line(marginLeft, cursorY, pageWidth - marginLeft, cursorY);
+                                  cursorY += 15;
+
+                                  // Content Parsing
+                                  doc.setFont("times", "normal");
+                                  doc.setFontSize(12);
+                                  doc.setTextColor(60, 60, 60);
+
+                                  const lines = content.split('\n');
+                                  
+                                  lines.forEach((line) => {
+                                    if (cursorY > 275) {
+                                      doc.addPage();
+                                      cursorY = 20;
+                                    }
+
+                                    if (line.trim() === '') {
+                                      cursorY += 5;
+                                      return;
+                                    }
+
+                                    // Check for headings
+                                    if (line.startsWith('#')) {
+                                      doc.setFont("times", "bold");
+                                      doc.setFontSize(16);
+                                      const hText = line.replace(/^#+\s*/, '');
+                                      doc.text(hText, marginLeft, cursorY);
+                                      cursorY += 10;
+                                      doc.setFont("times", "normal");
+                                      doc.setFontSize(12);
+                                      return;
+                                    }
+
+                                    // Special handling for YouTube links
+                                    const linkMatch = line.match(/\[(.*?)\]\((https?:\/\/.*?)\)/);
+                                    if (linkMatch) {
+                                      const beforeLink = line.split('[')[0];
+                                      const linkText = linkMatch[1];
+                                      const url = linkMatch[2];
+                                      
+                                      // Render part before link
+                                      if (beforeLink) {
+                                        doc.text(beforeLink, marginLeft, cursorY);
+                                      }
+                                      
+                                      // Render clickable link
+                                      const textWidth = doc.getTextWidth(beforeLink || "");
+                                      doc.setTextColor(0, 0, 255);
+                                      doc.textWithLink(linkText, marginLeft + textWidth, cursorY, { url });
+                                      
+                                      // Underline
+                                      const linkWidth = doc.getTextWidth(linkText);
+                                      doc.setDrawColor(0, 0, 255);
+                                      doc.line(marginLeft + textWidth, cursorY + 1, marginLeft + textWidth + linkWidth, cursorY + 1);
+                                      
+                                      doc.setTextColor(60, 60, 60);
+                                      cursorY += 8;
+                                      return;
+                                    }
+
+                                    // Regular wrapped text
+                                    const wrappedLines = doc.splitTextToSize(line, maxLineWidth);
+                                    wrappedLines.forEach((wLine: string) => {
+                                      if (cursorY > 275) {
+                                        doc.addPage();
+                                        cursorY = 20;
+                                      }
+                                      doc.text(wLine, marginLeft, cursorY);
+                                      cursorY += 7;
+                                    });
+                                  });
+
+                                  doc.save(`NutriCoach-${user.name}-Plan.pdf`);
+                                }}
                               className="p-2 hover:bg-[#4E342E]/10 rounded-lg text-[#6B705C]"
-                              title="Download TXT"
+                              title="Download PDF"
                             >
                               <Download size={20} />
                             </button>
