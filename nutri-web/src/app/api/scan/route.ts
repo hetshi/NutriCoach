@@ -80,11 +80,17 @@ export async function POST(req: Request) {
         const isReport = type === "report";
         const prompt = isReport 
             ? "Analyze this medical report image. Extract patient name, test dates, and specifically point out abnormal values (high/low) and their significance. Summarize in plain English."
-            : "Read all text from this grocery bill/receipt very carefully. Capture every item name, quantity, and health value you see. List only the extracted items.";
+            : "Look at this grocery bill or receipt image. Extract ONLY the product/item names. Output them as a simple comma-separated list with no extra text, no quantities, no prices, no amounts, no explanations — just the item names separated by commas.";
 
-        console.log("Sending to Groq Llama 4 Scout Vision model...");
+        console.log("Sending to Groq Vision model...");
         const response = await groq.chat.completions.create({
             messages: [
+                {
+                    role: "system",
+                    content: isReport
+                        ? "You are a medical report analyzer. Be concise and clear."
+                        : "You are a receipt scanner. Your ONLY job is to output a plain comma-separated list of item names from the receipt. No thinking. No explanations. No bullet points. No numbering. No quantities. No prices. Just item names separated by commas."
+                },
                 {
                     role: "user",
                     content: [
@@ -98,12 +104,56 @@ export async function POST(req: Request) {
                     ],
                 },
             ],
-            model: "meta-llama/llama-4-scout-17b-16e-instruct",
+            model: "qwen/qwen3.6-27b",
+            reasoning_format: "hidden",
         });
         console.log("Groq Scan Response Received successfully.");
         console.log("Full Message Data:", JSON.stringify(response.choices[0].message));
 
-        const rawContent = (response.choices[0]?.message?.content || "").trim();
+        // Strip <think>...</think> reasoning blocks
+        let rawContent = (response.choices[0]?.message?.content || "")
+            .replace(/<think>[\s\S]*?<\/think>/gi, "")
+            .trim();
+
+        // For bill scans: robustly extract ONLY the item names
+        if (!isReport) {
+            const lines = rawContent.split(/\n+/).map(l => l.trim()).filter(Boolean);
+
+            // Find lines that look like a clean comma-separated list (no colons, no markdown)
+            const cleanLines = lines.filter(line => {
+                const stripped = line.replace(/[*•\-\d\.\[\]]/g, "").trim();
+                return (
+                    stripped.includes(",") &&
+                    !stripped.includes(":") &&
+                    !stripped.toLowerCase().includes("based on") &&
+                    !stripped.toLowerCase().includes("here are") &&
+                    !stripped.toLowerCase().includes("note") &&
+                    stripped.length > 5
+                );
+            });
+
+            if (cleanLines.length > 0) {
+                // Take the longest clean comma-separated line (most complete item list)
+                rawContent = cleanLines
+                    .sort((a, b) => b.length - a.length)[0]
+                    .replace(/[*•\-]/g, "")
+                    .replace(/\s*\.\s*/g, ", ")
+                    .replace(/,\s*,/g, ",")
+                    .trim()
+                    .replace(/^,|,$/g, "");
+            } else {
+                // Fallback: aggressive cleanup of entire response
+                rawContent = rawContent
+                    .replace(/\*\*/g, "")
+                    .replace(/\n+/g, ", ")
+                    .replace(/\d+\.\s*/g, "")
+                    .replace(/[*•\-]\s*/g, "")
+                    .replace(/[A-Za-z ]+:[^,]*/g, "")
+                    .replace(/,\s*,/g, ",")
+                    .trim()
+                    .replace(/^,|,$/g, "");
+            }
+        }
         console.log("Processed Content Length:", rawContent.length);
 
         if (rawContent.length < 10) {
