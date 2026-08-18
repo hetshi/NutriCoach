@@ -204,7 +204,9 @@ export default function NutriCoachWeb() {
       });
 
       if (!response.ok) {
-        throw new Error(`AI error: ${response.status}. Make sure your API Key is set in Settings/Account.`);
+        const errorData = await response.json().catch(() => ({}));
+        const msg = errorData.details || errorData.error || `AI error: ${response.status}. Make sure GROQ_API_KEY is set in Render Environment Variables or Settings/Account.`;
+        throw new Error(msg);
       }
 
       const data = await response.json();

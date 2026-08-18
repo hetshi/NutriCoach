@@ -16,9 +16,19 @@ export async function POST(req: Request) {
         const formData = await req.formData();
         const headersList = req.headers;
         const clientKey = headersList.get("x-api-key");
+        const apiKeyToUse = (clientKey && clientKey.trim() !== "") 
+            ? clientKey.trim() 
+            : process.env.GROQ_API_KEY?.trim();
+
+        if (!apiKeyToUse) {
+            return NextResponse.json({ 
+                error: "GROQ_API_KEY is not set", 
+                details: "Groq API key is missing. Please set GROQ_API_KEY in Render Environment Variables or in Account Settings." 
+            }, { status: 400 });
+        }
 
         const groq = new Groq({
-            apiKey: clientKey || process.env.GROQ_API_KEY,
+            apiKey: apiKeyToUse,
         });
         const file = formData.get("file") as File;
         const type = formData.get("type") as string; // 'bill' or 'report'
@@ -63,7 +73,7 @@ export async function POST(req: Request) {
                             content: `Analyze this multi-page medical report text: ${textContent}. List abnormal values and suggest 3-4 specific dietary changes. Format: Abnormal: ... Suggestion: ...`
                         },
                     ],
-                    model: "llama-3.3-70b-versatile",
+                    model: "groq/compound-mini",
                 });
 
                 return NextResponse.json({

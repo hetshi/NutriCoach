@@ -6,9 +6,19 @@ export async function POST(req: Request) {
     const { messages, user } = await req.json();
     const headersList = req.headers;
     const clientKey = headersList.get("x-api-key");
+    const apiKeyToUse = (clientKey && clientKey.trim() !== "") 
+      ? clientKey.trim() 
+      : process.env.GROQ_API_KEY?.trim();
+
+    if (!apiKeyToUse) {
+      return NextResponse.json({ 
+        error: "GROQ_API_KEY is not set", 
+        details: "Groq API key is missing. Please set GROQ_API_KEY in Render Environment Variables or in Account Settings." 
+      }, { status: 400 });
+    }
 
     const groq = new Groq({
-      apiKey: clientKey || process.env.GROQ_API_KEY,
+      apiKey: apiKeyToUse,
     });
 
     const dietType = user?.diet_type?.toUpperCase() || "VEG";
@@ -121,7 +131,7 @@ export async function POST(req: Request) {
         },
         ...messages,
       ],
-      model: "llama-3.3-70b-versatile",
+      model: "groq/compound-mini",
     });
 
     return NextResponse.json({ 
@@ -129,6 +139,9 @@ export async function POST(req: Request) {
     });
   } catch (error: any) {
     console.error("Groq API Error:", error);
-    return NextResponse.json({ error: "Failed to connect to AI" }, { status: 500 });
+    return NextResponse.json({ 
+      error: "Failed to connect to AI", 
+      details: error.message || String(error) 
+    }, { status: 500 });
   }
 }

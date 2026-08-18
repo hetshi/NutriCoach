@@ -6,8 +6,19 @@ export async function POST(req: Request) {
         const { city } = await req.json();
         const headersList = req.headers;
         const clientKey = headersList.get("x-api-key");
+        const apiKeyToUse = (clientKey && clientKey.trim() !== "") 
+            ? clientKey.trim() 
+            : process.env.GROQ_API_KEY?.trim();
+
+        if (!apiKeyToUse) {
+            return NextResponse.json({ 
+                error: "GROQ_API_KEY is not set", 
+                details: "Groq API key is missing. Please set GROQ_API_KEY in Render Environment Variables or in Account Settings." 
+            }, { status: 400 });
+        }
+
         const groq = new Groq({
-            apiKey: clientKey || process.env.GROQ_API_KEY,
+            apiKey: apiKeyToUse,
         });
 
         const prompt = `You are a local health directory for India. List 4-5 REAL nutritionists/dietitians whose clinic is PHYSICALLY LOCATED IN "${city}", India.
@@ -29,7 +40,7 @@ Now list 4-5 real nutritionists physically based in ${city}:`;
 
         const response = await groq.chat.completions.create({
             messages: [{ role: "user", content: prompt }],
-            model: "llama-3.3-70b-versatile",
+            model: "groq/compound-mini",
             temperature: 0.1,
             max_tokens: 600,
         });
